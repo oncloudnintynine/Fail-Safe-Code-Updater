@@ -17,47 +17,98 @@
 </head>
 <body class="bg-darkbase text-gray-100 h-[100dvh] flex flex-col p-3 md:p-6 overflow-hidden">
 
-<div class="max-w-3xl mx-auto w-full flex-grow flex flex-col min-h-0">
- <div class="mb-3 md:mb-5 shrink-0">
+<div class="max-w-4xl mx-auto w-full flex-grow flex flex-col min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+ <div class="mb-4 shrink-0">
    <h1 class="text-2xl md:text-3xl font-bold text-indigo-400 flex items-center gap-2 md:gap-3">
      <svg class="w-6 h-6 md:w-8 md:h-8 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
      <span class="truncate">Fail-Safe Code Updater</span>
    </h1>
-   <p class="text-gray-400 mt-1.5 md:mt-2 text-xs md:text-sm hidden md:block">This application is entirely isolated from the main app and Google Apps Script backend. It communicates directly with the GitHub API to ensure you can push emergency code fixes even if the entire system crashes.</p>
+   <p class="text-gray-400 mt-2 text-xs md:text-sm">Isolated emergency deployment tool with integrated Google Drive backups and rollback support.</p>
  </div>
 
- <form id="updater-form" class="bg-darksurface rounded-xl shadow-2xl border border-darkborder overflow-hidden flex flex-col flex-grow min-h-0">
-   <div class="p-4 md:p-6 space-y-3 md:space-y-4 flex-grow flex flex-col min-h-0">
-     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 shrink-0">
-       <div>
-         <label class="block font-semibold mb-1 text-xs md:text-sm text-gray-300">GitHub Repo (owner/repo)</label>
-         <input type="text" id="gh-repo" required class="w-full border-2 border-darkborder rounded-lg py-1.5 md:py-2 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm" placeholder="e.g. oncloudnintynine/Cloud-Moves">
-       </div>
-       <div>
-         <label class="block font-semibold mb-1 text-xs md:text-sm text-gray-300">Target Branch</label>
-         <input type="text" id="gh-branch" required value="main" class="w-full border-2 border-darkborder rounded-lg py-1.5 md:py-2 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm" placeholder="e.g. main">
-       </div>
-     </div>
+ <!-- Global Status Message -->
+ <div id="status-message" class="hidden shrink-0 mb-4 p-3 rounded-lg text-xs md:text-sm font-semibold text-center transition-all"></div>
 
-     <div class="shrink-0">
-       <label class="block font-semibold mb-1 text-xs md:text-sm text-gray-300">GitHub Fine-Grained Token</label>
-       <input type="password" id="gh-token" required class="w-full border-2 border-darkborder rounded-lg py-1.5 md:py-2 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm" placeholder="Requires Contents (Read/Write) permissions">
+ <!-- CONFIGURATION SECTION -->
+ <div class="bg-darksurface rounded-xl shadow-2xl border border-darkborder overflow-hidden flex flex-col shrink-0 mb-4">
+   <div class="bg-[#0a0a0a] border-b border-darkborder px-4 py-3 flex items-center gap-2">
+     <svg class="w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+     <h2 class="font-bold text-sm text-gray-200">1. Configuration</h2>
+   </div>
+   <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+     <div>
+       <label class="block font-semibold mb-1 text-xs text-gray-400">GitHub Repo (owner/repo)</label>
+       <input type="text" id="gh-repo" required class="w-full border-2 border-darkborder rounded-lg py-1.5 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm" placeholder="e.g. oncloudnintynine/Cloud-Moves">
      </div>
+     <div>
+       <label class="block font-semibold mb-1 text-xs text-gray-400">Target Branch</label>
+       <input type="text" id="gh-branch" required value="main" class="w-full border-2 border-darkborder rounded-lg py-1.5 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm">
+     </div>
+     <div>
+       <label class="block font-semibold mb-1 text-xs text-gray-400">GitHub Fine-Grained Token</label>
+       <input type="password" id="gh-token" required class="w-full border-2 border-darkborder rounded-lg py-1.5 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm" placeholder="Contents (Read/Write) permissions">
+     </div>
+     <div>
+       <label class="block font-semibold mb-1 text-xs text-gray-400">GAS Web App URL (For Drive Backup)</label>
+       <input type="password" id="gas-url" required class="w-full border-2 border-darkborder rounded-lg py-1.5 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm" placeholder="https://script.google.com/macros/s/.../exec">
+     </div>
+     <div class="md:col-span-2">
+       <label class="block font-semibold mb-1 text-xs text-gray-400">Backup Drive Folder ID</label>
+       <input type="text" id="gh-drive-folder" required class="w-full border-2 border-darkborder rounded-lg py-1.5 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm" placeholder="Paste Drive Folder ID or URL here">
+     </div>
+   </div>
+ </div>
 
-     <div class="flex-grow flex flex-col min-h-0">
-       <label class="block font-semibold mb-1 text-xs md:text-sm text-gray-300 shrink-0">AI Code Payload</label>
-       <textarea id="gh-payload" required class="w-full flex-grow border-2 border-darkborder rounded-lg py-2 px-3 bg-darkinput text-white outline-none focus:border-indigo-500 transition font-mono text-[10px] md:text-xs resize-none overflow-y-auto" placeholder="Paste the exact AI output block containing $$$ FILE: path $$$..."></textarea>
+ <!-- UPDATE & ROLLBACK SECTIONS -->
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow min-h-[350px]">
+   
+   <!-- PUSH UPDATE -->
+   <form id="updater-form" class="bg-darksurface rounded-xl shadow-2xl border border-darkborder overflow-hidden flex flex-col h-full">
+     <div class="bg-[#0a0a0a] border-b border-darkborder px-4 py-3 flex items-center gap-2 shrink-0">
+       <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+       <h2 class="font-bold text-sm text-gray-200">2. Backup & Push Update</h2>
+     </div>
+     <div class="p-4 flex-grow flex flex-col min-h-0">
+       <label class="block font-semibold mb-1 text-xs text-gray-400 shrink-0">AI Code Payload</label>
+       <textarea id="gh-payload" required class="w-full flex-grow border-2 border-darkborder rounded-lg py-2 px-3 bg-darkinput text-white outline-none focus:border-green-500 transition font-mono text-[10px] md:text-xs resize-none overflow-y-auto" placeholder="Paste the exact AI output block containing $$$ FILE: path $$$..."></textarea>
+     </div>
+     <div class="p-4 bg-[#0a0a0a] border-t border-darkborder shrink-0">
+       <button type="submit" id="submit-btn" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-2.5 rounded-lg shadow-md transition flex justify-center items-center gap-2">
+         <span id="btn-text">Backup Repo & Push Code</span>
+         <div id="btn-spinner" class="spinner hidden"></div>
+       </button>
+     </div>
+   </form>
+
+   <!-- ROLLBACK -->
+   <div class="bg-darksurface rounded-xl shadow-2xl border border-darkborder overflow-hidden flex flex-col h-full">
+     <div class="bg-[#0a0a0a] border-b border-darkborder px-4 py-3 flex items-center gap-2 shrink-0">
+       <svg class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" /></svg>
+       <h2 class="font-bold text-sm text-gray-200">3. Emergency Rollback</h2>
+     </div>
+     <div class="p-4 flex-grow flex flex-col space-y-4">
+       <p class="text-xs text-gray-400">Restore the entire repository to a previously backed-up version stored in your Google Drive.</p>
+       <button type="button" id="load-backups-btn" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 rounded-lg transition text-sm flex justify-center items-center gap-2">
+         <span id="load-btn-text">Load Available Backups</span>
+         <div id="load-btn-spinner" class="spinner hidden"></div>
+       </button>
+       
+       <div id="rollback-container" class="hidden flex-col gap-4 mt-2">
+         <div>
+           <label class="block font-semibold mb-1 text-xs text-gray-400">Select Backup Version</label>
+           <select id="rollback-select" class="w-full border-2 border-darkborder rounded-lg py-2 px-3 bg-darkinput text-white outline-none focus:border-red-500 transition text-sm">
+             <!-- Options dynamically injected -->
+           </select>
+         </div>
+         <button type="button" id="rollback-btn" class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-2.5 rounded-lg shadow-md transition flex justify-center items-center gap-2">
+           <span id="rb-btn-text">Perform Rollback</span>
+           <div id="rb-btn-spinner" class="spinner hidden"></div>
+         </button>
+       </div>
      </div>
    </div>
 
-   <div class="p-3 md:p-4 bg-[#0a0a0a] border-t border-darkborder shrink-0">
-     <div id="status-message" class="hidden mb-2 p-2.5 rounded-lg text-xs md:text-sm font-semibold text-center"></div>
-     <button type="submit" id="submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 md:py-3 rounded-lg shadow-md transition flex justify-center items-center gap-2">
-       <span id="btn-text">Push Code to GitHub</span>
-       <div id="btn-spinner" class="spinner hidden"></div>
-     </button>
-   </div>
- </form>
+ </div>
 </div>
 
 <script src="updater.js"></script>
