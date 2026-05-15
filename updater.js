@@ -4,7 +4,7 @@
 
 // --- HARDCODED BACKEND CONFIGURATION ---
 // IMPORTANT: Paste your deployed Google Apps Script Web App URL below
-const GAS_WEB_APP_URL = "YOUR_GAS_WEB_APP_URL_HERE";
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyLB4dyVb7r0IessnWtsYHf2Wl91HlownMG2Hlx3fvpD6wGl7Les7jvIta5CU4TmJZR/exec";
 
 // --- UTILITY LOGIC & STATE ---
 const statusMsg = document.getElementById('status-message');
