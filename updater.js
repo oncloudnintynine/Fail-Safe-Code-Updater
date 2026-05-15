@@ -33,15 +33,17 @@ repoSelect.addEventListener('change', (e) => localStorage.setItem('acm_gh_repo',
 
 function setStatus(msg, type = 'info') {
     statusMsg.textContent = msg;
-    statusMsg.classList.remove('hidden', 'bg-red-900/50', 'text-red-400', 'border-red-800', 'bg-green-900/50', 'text-green-400', 'border-green-800', 'bg-blue-900/50', 'text-blue-400', 'border-blue-800');
+    // Clear old state colors
+    statusMsg.className = 'sticky top-4 z-50 shadow-2xl p-4 rounded-xl text-sm font-semibold text-center transition-all border backdrop-blur-md';
     
     if (type === 'error') {
-        statusMsg.classList.add('bg-red-900/50', 'text-red-400', 'border', 'border-red-800');
+        statusMsg.classList.add('bg-rose-900/80', 'text-rose-100', 'border-rose-800');
     } else if (type === 'success') {
-        statusMsg.classList.add('bg-green-900/50', 'text-green-400', 'border', 'border-green-800');
+        statusMsg.classList.add('bg-emerald-900/80', 'text-emerald-100', 'border-emerald-800');
     } else {
-        statusMsg.classList.add('bg-blue-900/50', 'text-blue-400', 'border', 'border-blue-800');
+        statusMsg.classList.add('bg-indigo-900/80', 'text-indigo-100', 'border-indigo-800');
     }
+    statusMsg.classList.remove('hidden');
 }
 
 function getConfig() {
