@@ -81,9 +81,14 @@
      </div>
      <div class="p-5 flex flex-col gap-2">
        <label class="font-semibold text-xs text-gray-400">AI Code Payload</label>
-       <!-- Standard rows configuration replaces the buggy flex-grow approach -->
        <textarea id="gh-payload" required rows="10" class="w-full min-h-[200px] border-2 border-darkborder rounded-xl py-3 px-4 bg-darkinput text-gray-200 outline-none focus:border-emerald-500 transition font-mono text-[11px] md:text-xs leading-relaxed resize-y shadow-inner custom-scrollbar" placeholder="Paste the exact AI output block containing $$$ FILE: path $$$..."></textarea>
      </div>
+     
+     <div class="px-5 pb-3 flex items-center gap-2">
+       <input type="checkbox" id="skip-backup" class="w-4 h-4 rounded accent-emerald-600 bg-darkinput border-darkborder cursor-pointer">
+       <label for="skip-backup" class="text-sm text-gray-300 cursor-pointer select-none transition hover:text-white">Skip Google Drive backup before pushing</label>
+     </div>
+
      <div class="p-5 pt-0">
        <button type="submit" id="submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3">
          <span id="btn-text">Backup Repo & Push Code</span>
