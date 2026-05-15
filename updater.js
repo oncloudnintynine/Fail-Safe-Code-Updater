@@ -287,8 +287,6 @@ function parsePayloadContent(rawContent) {
         
         // 1. Sanitize the Path
         let cleanPath = match[1].replace(/[\r\n]+/g, '').trim();
-        // Remove invisible Unicode characters (BOMs, zero-width spaces)
-        cleanPath = cleanPath.replace(/[\u200B-\u200D\uFEFF]/g, '');
         
         // REMOVE leading dots and slashes like "./" or "/" but PRESERVE ".github"
         cleanPath = cleanPath.replace(/^(\.\/|\/)+/, ''); 
@@ -307,12 +305,6 @@ function parsePayloadContent(rawContent) {
         let cleanContent = match[2].trim();
         // Google Docs smart quotes fix
         cleanContent = cleanContent.replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"');
-        // Google Docs en-dash / em-dash fix (reverts to standard hyphen)
-        cleanContent = cleanContent.replace(/[\u2013\u2014]/g, '-');
-        // Google Docs non-breaking spaces fix
-        cleanContent = cleanContent.replace(/\xA0/g, ' ');
-        // Strip invisible characters inside code
-        cleanContent = cleanContent.replace(/[\u200B-\u200D\uFEFF]/g, '');
 
         if (cleanPath) {
             files.push({ path: cleanPath, content: cleanContent });
