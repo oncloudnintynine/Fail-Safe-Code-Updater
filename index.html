@@ -65,7 +65,7 @@
  </div>
 
  <!-- UPDATE & ROLLBACK SECTIONS -->
- <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow min-h-[350px]">
+ <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow min-h-0 md:min-h-[350px]">
    
    <!-- PUSH UPDATE -->
    <form id="updater-form" class="bg-darksurface rounded-xl shadow-2xl border border-darkborder overflow-hidden flex flex-col h-full">
@@ -75,7 +75,7 @@
      </div>
      <div class="p-4 flex-grow flex flex-col min-h-0">
        <label class="block font-semibold mb-1 text-xs text-gray-400 shrink-0">AI Code Payload</label>
-       <textarea id="gh-payload" required class="w-full flex-grow border-2 border-darkborder rounded-lg py-2 px-3 bg-darkinput text-white outline-none focus:border-green-500 transition font-mono text-[10px] md:text-xs resize-none overflow-y-auto" placeholder="Paste the exact AI output block containing $$$ FILE: path $$$..."></textarea>
+       <textarea id="gh-payload" required class="w-full flex-grow min-h-[150px] border-2 border-darkborder rounded-lg py-2 px-3 bg-darkinput text-white outline-none focus:border-green-500 transition font-mono text-[10px] md:text-xs resize-none overflow-y-auto" placeholder="Paste the exact AI output block containing $$$ FILE: path $$$..."></textarea>
      </div>
      <div class="p-4 bg-[#0a0a0a] border-t border-darkborder shrink-0">
        <button type="submit" id="submit-btn" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-2.5 rounded-lg shadow-md transition flex justify-center items-center gap-2">
