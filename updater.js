@@ -502,3 +502,52 @@ document.getElementById('rollback-btn').addEventListener('click', async () => {
        btnText.textContent = "Perform Rollback";
    }
 });
+
+// 5. DEDICATED UPDATER BACKUP FLOW
+document.getElementById('updater-backup-btn').addEventListener('click', async () => {
+   const btn = document.getElementById('updater-backup-btn');
+   const btnText = document.getElementById('updater-backup-btn-text');
+   const btnSpinner = document.getElementById('updater-backup-btn-spinner');
+   
+   const token = document.getElementById('gh-token').value.trim();
+   if (!token) {
+       setStatus("GitHub Fine-Grained Token is required to backup the repo. Please enter it in Step 1.", "error");
+       window.scrollTo({ top: 0, behavior: 'smooth' });
+       return;
+   }
+
+   // Hardcoded configuration for this specific system tool bypasses the general UI selectors
+   const targetRepo = "oncloudnintynine/Fail-Safe-Code-Updater";
+   const targetFolderId = "1X8bpO1kyeS5GmUZ2s5X2tbOnJ-6QjzhD";
+   const targetBranch = "main";
+
+   try {
+       btn.disabled = true;
+       btnSpinner.classList.remove('hidden');
+       btnText.textContent = "Backing up Fail-Safe Updater...";
+       setStatus(`Fetching repository tree for ${targetRepo}...`, "info");
+       
+       const { fileNodes, compiledFiles } = await fetchAllRepoFiles(targetRepo, targetBranch, token);
+       const hierarchy = fileNodes.map(f => f.path).join('\n');
+       const repoNameStr = targetRepo.split('/').pop();
+       
+       setStatus("Compiling files and securely transmitting to Google Drive...", "info");
+
+       const backupData = await gasCall(GAS_WEB_APP_URL, { 
+           action: 'backupCode', 
+           folderId: targetFolderId, 
+           hierarchy, 
+           files: compiledFiles, 
+           repoName: repoNameStr 
+       });
+       
+       setStatus(`System Tool Backup successful! <a href="${backupData.url}" target="_blank" class="underline font-bold hover:text-white transition-colors ml-1">View on Google Drive &nearr;</a>`, "success");
+       
+   } catch(err) {
+       setStatus("System Backup Error: " + err.message, "error");
+   } finally {
+       btn.disabled = false;
+       btnSpinner.classList.add('hidden');
+       btnText.textContent = "Backup Fail-Safe-Code-Updater";
+   }
+});
