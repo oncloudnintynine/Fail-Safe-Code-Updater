@@ -6,139 +6,150 @@
 <title>App Code Maintainer</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
- tailwind.config = { darkMode: 'class', theme: { extend: { colors: { darkbase: '#000000', darksurface: '#121212', darkborder: '#2e2e2e', darkinput: '#1e1e1e' } } } }
+tailwind.config = { darkMode: 'class', theme: { extend: { colors: { darkbase: '#000000', darksurface: '#121212', darkborder: '#2e2e2e', darkinput: '#1e1e1e' } } } }
 </script>
 <style>
- body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #000; color: #f3f4f6; }
- .spinner { border: 3px solid rgba(255,255,255,.1); width: 20px; height: 20px; border-radius: 50%; border-left-color: #fff; animation: spin 1s linear infinite; }
- @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
- .hidden { display: none !important; }
- select option { background-color: #1e1e1e; color: #fff; }
- /* Custom scrollbar for better aesthetics */
- ::-webkit-scrollbar { width: 8px; }
- ::-webkit-scrollbar-track { background: #000; }
- ::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 4px; }
- ::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #000; color: #f3f4f6; }
+.spinner { border: 3px solid rgba(255,255,255,.1); width: 20px; height: 20px; border-radius: 50%; border-left-color: #fff; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.hidden { display: none !important; }
+select option { background-color: #1e1e1e; color: #fff; }
+/* Custom scrollbar for better aesthetics */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: #2e2e2e; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #4a4a4a; }
 </style>
 </head>
 <body class="min-h-screen relative antialiased selection:bg-indigo-500/30">
 
 <div class="max-w-4xl mx-auto w-full p-4 md:p-8 space-y-6 md:space-y-8">
- <!-- Header -->
- <header class="flex flex-col gap-2 mb-2">
-   <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-400 flex items-center gap-3">
-     <svg class="w-8 h-8 md:w-10 md:h-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-     <span class="tracking-tight">App Code Maintainer</span>
-   </h1>
-   <p class="text-gray-400 text-sm md:text-base max-w-2xl">Isolated emergency deployment tool with integrated Google Drive backups and rollback support.</p>
- </header>
+<!-- Header -->
+<header class="flex flex-col gap-2 mb-2">
+  <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-400 flex items-center gap-3">
+    <svg class="w-8 h-8 md:w-10 md:h-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
+    <span class="tracking-tight">App Code Maintainer</span>
+  </h1>
+  <p class="text-gray-400 text-sm md:text-base max-w-2xl">Isolated emergency deployment tool with integrated Google Drive backups and rollback support.</p>
+</header>
 
- <!-- Global Status Message (Sticky for visibility while scrolling) -->
- <div id="status-message" class="hidden sticky top-4 z-50 shadow-2xl p-4 rounded-xl text-sm font-semibold text-center transition-all border backdrop-blur-md"></div>
+<!-- Global Status Message (Sticky for visibility while scrolling) -->
+<div id="status-message" class="hidden sticky top-4 z-50 shadow-2xl p-4 rounded-xl text-sm font-semibold text-center transition-all border backdrop-blur-md"></div>
 
- <!-- CONFIGURATION SECTION -->
- <section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden">
-   <div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
-     <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-     <h2 class="font-bold text-base text-gray-200">1. Configuration</h2>
-   </div>
-   <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
-     <div class="space-y-1.5">
-       <label class="font-semibold text-xs text-gray-400 flex justify-between">
-         <span>GitHub Fine-Grained Token</span>
-         <span class="text-indigo-400/70 text-[10px] uppercase tracking-wider">Saved locally</span>
-       </label>
-       <input type="password" id="gh-token" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm shadow-inner" placeholder="Requires 'Contents' Read & Write scope">
-     </div>
-     <div class="space-y-1.5">
-       <label class="font-semibold text-xs text-gray-400 flex justify-between">
-         <span>Backup Drive Folder ID</span>
-         <span class="text-indigo-400/70 text-[10px] uppercase tracking-wider">Saved locally</span>
-       </label>
-       <input type="text" id="gh-drive-folder" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm shadow-inner" placeholder="Paste Drive Folder ID or URL">
-     </div>
-     <div class="space-y-1.5">
-       <label class="font-semibold text-xs text-gray-400">Target Repository</label>
-       <select id="gh-repo" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm appearance-none shadow-inner">
-         <option value="">Enter token to load repos...</option>
-       </select>
-     </div>
-     <div class="space-y-1.5">
-       <label class="font-semibold text-xs text-gray-400">Target Branch</label>
-       <input type="text" id="gh-branch" required value="main" class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm shadow-inner">
-     </div>
-   </div>
- </section>
+<!-- CONFIGURATION SECTION -->
+<section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden">
+  <div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
+    <svg class="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+    <h2 class="font-bold text-base text-gray-200">1. Configuration</h2>
+  </div>
+  <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="space-y-1.5">
+      <label class="font-semibold text-xs text-gray-400 flex justify-between">
+        <span>GitHub Fine-Grained Token</span>
+        <span class="text-indigo-400/70 text-[10px] uppercase tracking-wider">Saved locally</span>
+      </label>
+      <input type="password" id="gh-token" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm shadow-inner" placeholder="Requires 'Contents' Read & Write scope">
+    </div>
+    <div class="space-y-1.5">
+      <label class="font-semibold text-xs text-gray-400 flex justify-between">
+        <span>Backup Drive Folder ID</span>
+        <span class="text-indigo-400/70 text-[10px] uppercase tracking-wider">Saved locally</span>
+      </label>
+      <input type="text" id="gh-drive-folder" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm shadow-inner" placeholder="Paste Drive Folder ID or URL">
+    </div>
+    <div class="space-y-1.5">
+      <label class="font-semibold text-xs text-gray-400">Target Repository</label>
+      <select id="gh-repo" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm appearance-none shadow-inner">
+        <option value="">Enter token to load repos...</option>
+      </select>
+    </div>
+    <div class="space-y-1.5">
+      <label class="font-semibold text-xs text-gray-400">Target Branch</label>
+      <input type="text" id="gh-branch" required value="main" class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm shadow-inner">
+    </div>
+  </div>
+</section>
 
- <!-- ACTIONS GRID -->
- <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-   
-   <!-- PUSH UPDATE -->
-   <form id="updater-form" class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden flex flex-col h-full">
-     <div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
-       <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-       <h2 class="font-bold text-base text-gray-200">2. Code Update & Auto-Backup</h2>
-     </div>
-     <div class="p-5 flex flex-col gap-2 flex-grow">
-       <label class="font-semibold text-xs text-gray-400">AI Code Payload</label>
-       <textarea id="gh-payload" required rows="10" class="w-full min-h-[200px] flex-grow border-2 border-darkborder rounded-xl py-3 px-4 bg-darkinput text-gray-200 outline-none focus:border-emerald-500 transition font-mono text-[11px] md:text-xs leading-relaxed resize-y shadow-inner custom-scrollbar" placeholder="Paste the exact AI output block containing $$$ FILE: path $$$..."></textarea>
-     </div>
-     
-     <div class="px-5 pb-3 flex items-center gap-2">
-       <input type="checkbox" id="skip-backup" class="w-4 h-4 rounded accent-emerald-600 bg-darkinput border-darkborder cursor-pointer">
-       <label for="skip-backup" class="text-sm text-gray-300 cursor-pointer select-none transition hover:text-white">Skip Google Drive backup before pushing</label>
-     </div>
+<!-- ACTIONS GRID -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+  
+  <!-- PUSH UPDATE -->
+  <form id="updater-form" class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden flex flex-col h-full">
+    <div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
+      <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+      <h2 class="font-bold text-base text-gray-200">2. Code Update & Auto-Backup</h2>
+    </div>
+    <div class="p-5 flex flex-col gap-2 flex-grow">
+      <label class="font-semibold text-xs text-gray-400">AI Code Payload</label>
+      <textarea id="gh-payload" required rows="10" class="w-full min-h-[200px] flex-grow border-2 border-darkborder rounded-xl py-3 px-4 bg-darkinput text-gray-200 outline-none focus:border-emerald-500 transition font-mono text-[11px] md:text-xs leading-relaxed resize-y shadow-inner custom-scrollbar" placeholder="Paste the exact AI output block containing $$$ FILE: path $$$..."></textarea>
+    </div>
+    
+    <div class="px-5 pb-3 flex items-center gap-2">
+      <input type="checkbox" id="skip-backup" class="w-4 h-4 rounded accent-emerald-600 bg-darkinput border-darkborder cursor-pointer">
+      <label for="skip-backup" class="text-sm text-gray-300 cursor-pointer select-none transition hover:text-white">Skip Google Drive backup before pushing</label>
+    </div>
 
-     <div class="p-5 pt-0">
-       <button type="submit" id="submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3">
-         <span id="btn-text">Backup Repo & Push Code</span>
-         <div id="btn-spinner" class="spinner hidden"></div>
-       </button>
-     </div>
-   </form>
+    <div class="p-5 pt-0">
+      <button type="submit" id="submit-btn" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3">
+        <span id="btn-text">Backup Repo & Push Code</span>
+        <div id="btn-spinner" class="spinner hidden"></div>
+      </button>
+    </div>
+  </form>
 
-   <!-- BACKUP & RESTORE -->
-   <section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden flex flex-col h-full">
-     <div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
-       <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
-       <h2 class="font-bold text-base text-gray-200">3. Backup & Restore</h2>
-     </div>
-     <div class="p-5 flex flex-col gap-5 flex-grow">
-       <p class="text-sm text-gray-400 leading-relaxed">Manually backup the current state of the repository to your Google Drive, or restore it to a previously saved state.</p>
-       
-       <!-- Manual Backup Button -->
-       <button type="button" id="manual-backup-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3">
-         <span id="manual-backup-btn-text">Create Manual Backup</span>
-         <div id="manual-backup-btn-spinner" class="spinner hidden"></div>
-       </button>
+  <!-- BACKUP & RESTORE -->
+  <section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden flex flex-col h-full">
+    <div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
+      <svg class="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
+      <h2 class="font-bold text-base text-gray-200">3. Backup & Restore</h2>
+    </div>
+    <div class="p-5 flex flex-col gap-5 flex-grow">
+      <p class="text-sm text-gray-400 leading-relaxed">Manually backup the current state of the repository to your Google Drive, or restore it to a previously saved state.</p>
+      
+      <!-- Manual Backup Button -->
+      <button type="button" id="manual-backup-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3">
+        <span id="manual-backup-btn-text">Create Manual Backup</span>
+        <div id="manual-backup-btn-spinner" class="spinner hidden"></div>
+      </button>
 
-       <div class="relative flex py-2 items-center">
-         <div class="flex-grow border-t border-darkborder"></div>
-         <span class="shrink-0 mx-4 text-xs font-semibold text-gray-500">OR</span>
-         <div class="flex-grow border-t border-darkborder"></div>
-       </div>
-       
-       <button type="button" id="load-backups-btn" class="w-full bg-darkinput hover:bg-darkborder border border-darkborder text-gray-200 font-semibold py-3 px-4 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-3">
-         <span id="load-btn-text">Load Available Backups</span>
-         <div id="load-btn-spinner" class="spinner hidden"></div>
-       </button>
-       
-       <div id="rollback-container" class="hidden flex-col gap-4 pt-3 border-t border-darkborder">
-         <div class="space-y-1.5">
-           <label class="font-semibold text-xs text-gray-400">Select Backup Version</label>
-           <select id="rollback-select" class="w-full border-2 border-darkborder rounded-xl py-3 px-4 bg-darkinput text-white outline-none focus:border-rose-500 transition text-sm shadow-inner">
-             <!-- Options dynamically injected -->
-           </select>
-         </div>
-         <button type="button" id="rollback-btn" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3 mt-auto">
-           <span id="rb-btn-text">Perform Rollback</span>
-           <div id="rb-btn-spinner" class="spinner hidden"></div>
-         </button>
-       </div>
-     </div>
-   </section>
+      <div class="relative flex py-2 items-center">
+        <div class="flex-grow border-t border-darkborder"></div>
+        <span class="shrink-0 mx-4 text-xs font-semibold text-gray-500">OR</span>
+        <div class="flex-grow border-t border-darkborder"></div>
+      </div>
+      
+      <button type="button" id="load-backups-btn" class="w-full bg-darkinput hover:bg-darkborder border border-darkborder text-gray-200 font-semibold py-3 px-4 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-3">
+        <span id="load-btn-text">Load Available Backups</span>
+        <div id="load-btn-spinner" class="spinner hidden"></div>
+      </button>
+      
+      <div id="rollback-container" class="hidden flex-col gap-4 pt-3 border-t border-darkborder">
+        <div class="space-y-1.5">
+          <label class="font-semibold text-xs text-gray-400">Select Backup Version</label>
+          <select id="rollback-select" class="w-full border-2 border-darkborder rounded-xl py-3 px-4 bg-darkinput text-white outline-none focus:border-rose-500 transition text-sm shadow-inner">
+            <!-- Options dynamically injected -->
+          </select>
+        </div>
+        <button type="button" id="rollback-btn" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3 mt-auto">
+          <span id="rb-btn-text">Perform Rollback</span>
+          <div id="rb-btn-spinner" class="spinner hidden"></div>
+        </button>
+      </div>
 
- </div>
+      <!-- DEDICATED UPDATER TOOL BACKUP -->
+      <div class="mt-auto pt-5 border-t border-darkborder flex flex-col gap-3">
+        <p class="text-[11px] text-gray-500 text-center uppercase tracking-wider font-bold">System Maintenance</p>
+        <button type="button" id="updater-backup-btn" class="w-full bg-indigo-900/40 hover:bg-indigo-800/60 border border-indigo-500/30 text-indigo-300 font-bold py-3 px-4 rounded-xl transition-all active:scale-[0.98] flex justify-center items-center gap-3">
+          <svg class="w-5 h-5 shrink-0 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+          <span id="updater-backup-btn-text">Backup Fail-Safe-Code-Updater</span>
+          <div id="updater-backup-btn-spinner" class="spinner hidden" style="border-left-color: #818cf8;"></div>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+</div>
 </div>
 
 <script src="updater.js"></script>
