@@ -17,6 +17,8 @@ try {
     result = handleGetBackupContent(params);
   } else if (action === 'getFolders') {
     result = handleGetFolders(params);
+  } else if (action === 'getFolderInfo') {
+    result = handleGetFolderInfo(params);
   } else {
     throw new Error("Invalid action specified.");
   }
@@ -162,4 +164,16 @@ function handleGetFolders(params) {
     }, 
     parent: parent 
   };
+}
+
+function handleGetFolderInfo(params) {
+  const folderId = params.folderId;
+  if (!folderId) throw new Error("Missing folderId parameter.");
+  
+  try {
+    const folder = DriveApp.getFolderById(folderId);
+    return { name: folder.getName(), id: folder.getId() };
+  } catch (e) {
+    throw new Error("Folder not found or inaccessible.");
+  }
 }
