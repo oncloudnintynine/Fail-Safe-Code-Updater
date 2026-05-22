@@ -50,9 +50,9 @@ select option { background-color: #1e1e1e; color: #fff; }
      </label>
      <input type="password" id="gh-token" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm shadow-inner" placeholder="Requires 'Contents' Read & Write scope">
    </div>
-   <div class="space-y-1.5">
-     <label class="font-semibold text-xs text-gray-400 flex justify-between">
-       <span>Backup Drive Folder ID</span>
+   <div class="space-y-1.5 flex flex-col justify-start">
+     <label class="font-semibold text-xs text-gray-400 flex justify-between mb-1.5">
+       <span>Google Drive Backup Folder</span>
        <span class="text-indigo-400/70 text-[10px] uppercase tracking-wider">Saved locally</span>
      </label>
      <div class="relative flex">
@@ -61,6 +61,7 @@ select option { background-color: #1e1e1e; color: #fff; }
          <svg class="w-5 h-5 group-hover:text-indigo-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
        </button>
      </div>
+     <div id="drive-folder-name" class="text-[11px] font-medium px-1 mt-1.5 hidden truncate transition-all duration-200"></div>
    </div>
    <div class="space-y-1.5">
      <label class="font-semibold text-xs text-gray-400">Target Repository</label>
