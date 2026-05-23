@@ -177,4 +177,4 @@ function handleGetFolderInfo(params) {
     throw new Error("Folder not found or inaccessible.");
   }
 }
-
+ 
