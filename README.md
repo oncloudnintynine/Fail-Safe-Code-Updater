@@ -1,6 +1,8 @@
 # https://oncloudnintynine.github.io/Fail-Safe-Code-Updater/
 
 If forked, remember to:
+
+0. Enable Google Apps Script API @ https://script.google.com/u/1/home/userset tings?pageld=none
 1. Change the GAS webapp link under updater.js.
 2. Change the link above.
 3. Secrets names:
