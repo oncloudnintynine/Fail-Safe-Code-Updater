@@ -1,6 +1,7 @@
 # https://weronedatabase-tech.github.io/Fail-Safe-Code-Updater/
 
 If forked, remember to:
+0. Enable Google Apps Script API @ https://script.google.com/u/1/home/usersettings?pageId=none
 1. Change the GAS webapp link under updater.js.
 2. Change the link above.
 3. Secrets names:
