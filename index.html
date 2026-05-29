@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>App Code Maintainer</title>
+<title id="app-title">App Code Maintainer</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
 tailwind.config = { darkMode: 'class', theme: { extend: { colors: { darkbase: '#000000', darksurface: '#121212', darkborder: '#2e2e2e', darkinput: '#1e1e1e' } } } }
@@ -28,7 +28,7 @@ select option { background-color: #1e1e1e; color: #fff; }
 <header class="flex flex-col gap-2 mb-2">
 <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-400 flex items-center gap-3">
   <svg class="w-8 h-8 md:w-10 md:h-10 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-  <span class="tracking-tight">App Code Maintainer</span>
+  <span class="tracking-tight" id="app-header-name">App Code Maintainer</span>
 </h1>
 <p class="text-gray-400 text-sm md:text-base max-w-2xl">Isolated emergency deployment tool with integrated Google Drive backups and rollback support.</p>
 </header>
@@ -195,6 +195,9 @@ select option { background-color: #1e1e1e; color: #fff; }
  </div>
 </div>
 
+<script src="config.js"></script>
 <script src="updater.js"></script>
 </body>
 </html>
+
+
