@@ -1,41 +1,41 @@
 function doPost(e) { 
 try {
-  // Enable CORS by handling preflight in doOptions if necessary
-  if (!e || !e.postData || !e.postData.contents) {
-    throw new Error("No payload provided.");
-  }
-  
-  const params = JSON.parse(e.postData.contents);
-  const action = params.action;
-  let result = {};
-  
-  if (action === 'backupCode') {
-    result = handleBackup(params);
-  } else if (action === 'getBackups') {
-    result = handleGetBackups(params);
-  } else if (action === 'getBackupContent') {
-    result = handleGetBackupContent(params);
-  } else if (action === 'getFolders') {
-    result = handleGetFolders(params);
-  } else if (action === 'getFolderInfo') {
-    result = handleGetFolderInfo(params);
-  } else {
-    throw new Error("Invalid action specified.");
-  }
-  
-  return ContentService.createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
-    
+ // Enable CORS by handling preflight in doOptions if necessary
+ if (!e || !e.postData || !e.postData.contents) {
+   throw new Error("No payload provided.");
+ }
+ 
+ const params = JSON.parse(e.postData.contents);
+ const action = params.action;
+ let result = {};
+ 
+ if (action === 'backupCode') {
+   result = handleBackup(params);
+ } else if (action === 'getBackups') {
+   result = handleGetBackups(params);
+ } else if (action === 'getBackupContent') {
+   result = handleGetBackupContent(params);
+ } else if (action === 'getFolders') {
+   result = handleGetFolders(params);
+ } else if (action === 'getFolderInfo') {
+   result = handleGetFolderInfo(params);
+ } else {
+   throw new Error("Invalid action specified.");
+ }
+ 
+ return ContentService.createTextOutput(JSON.stringify(result))
+   .setMimeType(ContentService.MimeType.JSON);
+   
 } catch (error) {
-  return ContentService.createTextOutput(JSON.stringify({ error: error.message || error.toString() }))
-    .setMimeType(ContentService.MimeType.JSON);
+ return ContentService.createTextOutput(JSON.stringify({ error: error.message || error.toString() }))
+   .setMimeType(ContentService.MimeType.JSON);
 }
 }
 
 function doOptions(e) {
 // Handle CORS preflight requests
 return ContentService.createTextOutput("")
-  .setMimeType(ContentService.MimeType.TEXT);
+ .setMimeType(ContentService.MimeType.TEXT);
 }
 
 function handleBackup(params) {
@@ -47,7 +47,7 @@ const files = params.files;
 const repoName = params.repoName || "App"; 
 
 if (!folderId || !files) {
-  throw new Error("Missing required parameters: folderId or files.");
+ throw new Error("Missing required parameters: folderId or files.");
 }
 
 const folder = DriveApp.getFolderById(folderId);
@@ -66,10 +66,10 @@ body.appendParagraph(hierarchy || "No hierarchy provided.");
 body.appendParagraph("\n");
 
 files.forEach(file => {
-  body.appendParagraph(`$$$ FILE: ${file.path} $$$`);
-  body.appendParagraph("```javascript");
-  body.appendParagraph(file.content);
-  body.appendParagraph("```\n\n");
+ body.appendParagraph(`@@@===FILE_PATH: ${file.path} ===@@@`);
+ body.appendParagraph("@@@===CODE_START===@@@");
+ body.appendParagraph(file.content);
+ body.appendParagraph("@@@===CODE_END===@@@\n\n");
 });
 
 doc.saveAndClose();
@@ -82,8 +82,8 @@ driveFile.moveTo(folder);
 driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
 return {
-  url: driveFile.getUrl(),
-  id: fileId
+ url: driveFile.getUrl(),
+ id: fileId
 };
 }
 
@@ -96,12 +96,12 @@ const files = folder.getFilesByType(MimeType.GOOGLE_DOCS);
 const backups = [];
 
 while (files.hasNext()) {
-  const file = files.next();
-  backups.push({
-    id: file.getId(),
-    name: file.getName(),
-    time: file.getDateCreated().getTime()
-  });
+ const file = files.next();
+ backups.push({
+   id: file.getId(),
+   name: file.getName(),
+   time: file.getDateCreated().getTime()
+ });
 }
 
 // Sort backups so the newest ones appear at the top
@@ -119,61 +119,61 @@ return { content: doc.getBody().getText() };
 }
 
 function handleGetFolders(params) {
-  const parentId = params.parentId || 'root';
-  let folder;
-  
-  if (parentId === 'root') {
-    folder = DriveApp.getRootFolder();
-  } else {
-    folder = DriveApp.getFolderById(parentId);
-  }
-  
-  const subFolders = folder.getFolders();
-  const folders = [];
-  
-  while (subFolders.hasNext()) {
-    const f = subFolders.next();
-    folders.push({
-      id: f.getId(),
-      name: f.getName()
-    });
-  }
-  
-  // Sort folders alphabetically
-  folders.sort((a, b) => a.name.localeCompare(b.name));
-  
-  let parent = null;
-  if (parentId !== 'root') {
-    try {
-      const parents = folder.getParents();
-      if (parents.hasNext()) {
-        parent = { id: parents.next().getId() };
-      } else {
-        parent = { id: 'root' };
-      }
-    } catch(e) {
+ const parentId = params.parentId || 'root';
+ let folder;
+ 
+ if (parentId === 'root') {
+   folder = DriveApp.getRootFolder();
+ } else {
+   folder = DriveApp.getFolderById(parentId);
+ }
+ 
+ const subFolders = folder.getFolders();
+ const folders = [];
+ 
+ while (subFolders.hasNext()) {
+   const f = subFolders.next();
+   folders.push({
+     id: f.getId(),
+     name: f.getName()
+   });
+ }
+ 
+ // Sort folders alphabetically
+ folders.sort((a, b) => a.name.localeCompare(b.name));
+ 
+ let parent = null;
+ if (parentId !== 'root') {
+   try {
+     const parents = folder.getParents();
+     if (parents.hasNext()) {
+       parent = { id: parents.next().getId() };
+     } else {
        parent = { id: 'root' };
-    }
-  }
-  
-  return { 
-    folders: folders, 
-    current: { 
-      id: parentId === 'root' ? folder.getId() : parentId, 
-      name: parentId === 'root' ? 'My Drive' : folder.getName() 
-    }, 
-    parent: parent 
-  };
+     }
+   } catch(e) {
+      parent = { id: 'root' };
+   }
+ }
+ 
+ return { 
+   folders: folders, 
+   current: { 
+     id: parentId === 'root' ? folder.getId() : parentId, 
+     name: parentId === 'root' ? 'My Drive' : folder.getName() 
+   }, 
+   parent: parent 
+ };
 }
 
 function handleGetFolderInfo(params) {
-  const folderId = params.folderId;
-  if (!folderId) throw new Error("Missing folderId parameter.");
-  
-  try {
-    const folder = DriveApp.getFolderById(folderId);
-    return { name: folder.getName(), id: folder.getId() };
-  } catch (e) {
-    throw new Error("Folder not found or inaccessible.");
-  }
+ const folderId = params.folderId;
+ if (!folderId) throw new Error("Missing folderId parameter.");
+ 
+ try {
+   const folder = DriveApp.getFolderById(folderId);
+   return { name: folder.getName(), id: folder.getId() };
+ } catch (e) {
+   throw new Error("Folder not found or inaccessible.");
+ }
 }
