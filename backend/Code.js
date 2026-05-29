@@ -172,8 +172,20 @@ function handleGetFolderInfo(params) {
  
  try {
    const folder = DriveApp.getFolderById(folderId);
-   return { name: folder.getName(), id: folder.getId() };
+   let pathName = folder.getName();
+   let current = folder;
+   
+   // Attempt to retrieve full path tree
+   try {
+     while (current.getParents().hasNext()) {
+       current = current.getParents().next();
+       pathName = current.getName() + ' / ' + pathName;
+     }
+   } catch(e) {}
+   
+   return { name: folder.getName(), path: pathName, id: folder.getId() };
  } catch (e) {
    throw new Error("Folder not found or inaccessible.");
  }
 }
+
