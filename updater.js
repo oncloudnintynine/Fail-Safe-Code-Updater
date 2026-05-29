@@ -2,8 +2,8 @@
 // App Code Maintainer - Client-Side Logic
 // ==========================================
 
-// --- HARDCODED BACKEND CONFIGURATION ---
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzf6zu4uxmqe_wC92ixIISm0LRtrOME5nUv94bB0tAd0dbzflLIUydvgE6ISe-qIZuZ/exec";
+// --- BACKEND CONFIGURATION (Loaded from config.js) ---
+const GAS_WEB_APP_URL = typeof APP_CONFIG !== 'undefined' ? APP_CONFIG.GAS_WEB_APP_URL : '';
 
 // --- UTILITY LOGIC & STATE ---
 const statusMsg = document.getElementById('status-message');
@@ -31,29 +31,60 @@ const selectedFolderInfo = document.getElementById('selected-folder-info');
 let activeSelectedFolder = null; 
 
 document.addEventListener("DOMContentLoaded", () => {
+// Dynamically set application name from config.js
+if (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.APP_NAME) {
+    const appTitle = document.getElementById('app-title');
+    const appHeaderName = document.getElementById('app-header-name');
+    if (appTitle) appTitle.textContent = APP_CONFIG.APP_NAME;
+    if (appHeaderName) appHeaderName.textContent = APP_CONFIG.APP_NAME;
+}
+
 tokenInput.value = localStorage.getItem('acm_gh_token') || '';
-folderInput.value = localStorage.getItem('acm_drive_folder') || '';
 branchInput.value = localStorage.getItem('acm_gh_branch') || 'main';
 skipBackupCheckbox.checked = localStorage.getItem('acm_skip_backup') === 'true';
 
+const savedFolderId = localStorage.getItem('acm_drive_folder_id') || localStorage.getItem('acm_drive_folder');
+const savedFolderPath = localStorage.getItem('acm_drive_folder_path');
+
+if (savedFolderId) {
+    folderInput.dataset.folderId = savedFolderId;
+    if (savedFolderPath) {
+        folderInput.value = savedFolderPath;
+        driveFolderNameDisplay.classList.remove('hidden');
+        driveFolderNameDisplay.className = 'text-[11px] text-emerald-400 font-medium px-1 mt-1.5 truncate';
+        driveFolderNameDisplay.textContent = `📁 Linked to Drive Folder`;
+    } else {
+        folderInput.value = savedFolderId;
+        fetchFolderName(savedFolderId);
+    }
+}
+
 toggleBtnText();
 if (tokenInput.value.trim()) fetchRepos();
-if (folderInput.value.trim()) fetchFolderName(folderInput.value);
 });
 
 tokenInput.addEventListener('change', (e) => {
 localStorage.setItem('acm_gh_token', e.target.value.trim());
 if (e.target.value.trim()) fetchRepos();
 });
+
+folderInput.addEventListener('input', () => {
+    delete folderInput.dataset.folderId;
+    driveFolderNameDisplay.classList.add('hidden');
+});
+
 folderInput.addEventListener('change', (e) => {
 const val = e.target.value.trim();
-localStorage.setItem('acm_drive_folder', val);
 if (val) {
     fetchFolderName(val);
 } else {
     driveFolderNameDisplay.classList.add('hidden');
+    localStorage.removeItem('acm_drive_folder_id');
+    localStorage.removeItem('acm_drive_folder_path');
+    localStorage.removeItem('acm_drive_folder'); // clean up legacy item
 }
 });
+
 branchInput.addEventListener('change', (e) => localStorage.setItem('acm_gh_branch', e.target.value.trim()));
 repoSelect.addEventListener('change', (e) => localStorage.setItem('acm_gh_repo', e.target.value));
 
@@ -103,33 +134,32 @@ function extractFolderId(input) {
    return folderId;
 }
 
-function displayFolderName(name, isError = false) {
-   driveFolderNameDisplay.classList.remove('hidden');
-   if (isError) {
-       driveFolderNameDisplay.className = 'text-[11px] text-rose-400 font-medium px-1 mt-1.5 truncate';
-       driveFolderNameDisplay.textContent = name;
-   } else {
-       driveFolderNameDisplay.className = 'text-[11px] text-emerald-400 font-medium px-1 mt-1.5 truncate';
-       driveFolderNameDisplay.textContent = `📁 Selected Folder: ${name}`;
-   }
-}
-
 async function fetchFolderName(rawInput) {
    const folderId = extractFolderId(rawInput);
    if (!folderId) {
        driveFolderNameDisplay.classList.add('hidden');
+       delete folderInput.dataset.folderId;
        return;
    }
    
    driveFolderNameDisplay.classList.remove('hidden');
    driveFolderNameDisplay.className = 'text-[11px] text-gray-400 font-medium px-1 mt-1.5 truncate';
-   driveFolderNameDisplay.textContent = 'Resolving folder name...';
+   driveFolderNameDisplay.textContent = 'Resolving folder path...';
    
    try {
        const data = await gasCall(GAS_WEB_APP_URL, { action: 'getFolderInfo', folderId });
-       displayFolderName(data.name);
+       
+       folderInput.dataset.folderId = data.id;
+       folderInput.value = data.path || data.name; // Displays the full path
+       localStorage.setItem('acm_drive_folder_id', data.id);
+       localStorage.setItem('acm_drive_folder_path', folderInput.value);
+       
+       driveFolderNameDisplay.className = 'text-[11px] text-emerald-400 font-medium px-1 mt-1.5 truncate';
+       driveFolderNameDisplay.textContent = `📁 Linked to Drive Folder`;
    } catch (err) {
-       displayFolderName('Invalid or inaccessible folder ID', true);
+       driveFolderNameDisplay.className = 'text-[11px] text-rose-400 font-medium px-1 mt-1.5 truncate';
+       driveFolderNameDisplay.textContent = 'Invalid or inaccessible folder ID';
+       delete folderInput.dataset.folderId;
    }
 }
 
@@ -137,16 +167,21 @@ function getConfig() {
 const repo = document.getElementById('gh-repo').value.trim();
 const branch = document.getElementById('gh-branch').value.trim();
 const token = document.getElementById('gh-token').value.trim();
-const folderInputVal = document.getElementById('gh-drive-folder').value.trim();
+const folderInputEl = document.getElementById('gh-drive-folder');
+const folderInputVal = folderInputEl.value.trim();
+const storedFolderId = folderInputEl.dataset.folderId;
 
 if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
-    throw new Error("GAS Web App URL is missing. Please hardcode it in updater.js.");
+    throw new Error("GAS Web App URL is missing. Please configure it in config.js.");
 }
 if (!repo || !branch || !token || !folderInputVal) {
     throw new Error("All configuration fields in Step 1 are required.");
 }
 
-const folderId = extractFolderId(folderInputVal);
+const folderId = storedFolderId || extractFolderId(folderInputVal);
+if (!folderId) {
+    throw new Error("Invalid Google Drive Folder ID or URL.");
+}
 
 return { repo, branch, token, gasUrl: GAS_WEB_APP_URL, folderId, skipBackup: skipBackupCheckbox.checked };
 }
@@ -305,9 +340,7 @@ function updateSelectedFolderUI() {
 
 btnConfirmFolder.addEventListener('click', () => {
    if (activeSelectedFolder) {
-       folderInput.value = activeSelectedFolder.id;
-       localStorage.setItem('acm_drive_folder', activeSelectedFolder.id);
-       displayFolderName(activeSelectedFolder.name); // Instantly display the pre-fetched name
+       fetchFolderName(activeSelectedFolder.id); // This will resolve the path and update the UI
        closeFolderModal();
    }
 });
@@ -736,10 +769,15 @@ if (!token) {
     return;
 }
 
-// Hardcoded configuration for this specific system tool bypasses the general UI selectors
-const targetRepo = "weronedatabase-tech/Fail-Safe-Code-Updater";
-const targetFolderId = "1u0irLS2iRZX9Tpx92uazdRukTemA3pLL";
-const targetBranch = "main";
+// Configuration for this specific system tool bypasses the general UI selectors (Loaded from config.js)
+const targetRepo = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_REPO ? APP_CONFIG.TARGET_REPO : "weronedatabase-tech/Fail-Safe-Code-Updater";
+const targetFolderId = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_FOLDER_ID ? APP_CONFIG.TARGET_FOLDER_ID : "1u0irLS2iRZX9Tpx92uazdRukTemA3pLL";
+const targetBranch = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_BRANCH ? APP_CONFIG.TARGET_BRANCH : "main";
+
+if (!targetRepo || !targetFolderId || !targetBranch) {
+    setStatus("System Maintenance configuration missing in config.js.", "error");
+    return;
+}
 
 try {
     btn.disabled = true;
