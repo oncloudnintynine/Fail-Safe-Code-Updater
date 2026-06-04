@@ -3,43 +3,43 @@ name: Deploy Google Apps Script
 # Only trigger this workflow when changes are pushed to the main branch 
 # AND only if those changes occur inside the backend/ folder.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
+ push:
+   branches:
+     - main
+   paths:
+     - 'backend/**'
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+ deploy:
+   runs-on: ubuntu-latest
+   
+   steps:
+     - name: Checkout Repository
+       uses: actions/checkout@v4
 
-      - name: Setup Node.js Environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+     - name: Setup Node.js Environment
+       uses: actions/setup-node@v4
+       with:
+         node-version: '20'
 
-      - name: Install Clasp
-        run: npm install -g @google/clasp
+     - name: Install Clasp
+       run: npm install -g @google/clasp
 
-      - name: Configure Clasp Authentication and Settings
-        run: |
-          # 1. Write the securely stored credentials to the runner's home directory
-          echo '${{ secrets.CLASP_CREDENTIALS }}' > ~/.clasprc.json
-          
-          # 2. Dynamically inject the Script ID into the .clasp.json file
-          # We do this dynamically so your Script ID isn't hardcoded in the public repo.
-          sed -i 's/"scriptId": ""/"scriptId": "${{ secrets.GAS_SCRIPT_ID }}"/' .clasp.json
+     - name: Configure Clasp Authentication and Settings
+       run: |
+         # 1. Write the securely stored credentials to the runner's home directory
+         echo '${{ secrets.CLASP_CREDENTIALS }}' > ~/.clasprc.json
+         
+         # 2. Dynamically inject the Script ID into the .clasp.json file
+         # We do this dynamically so your Script ID isn't hardcoded in the public repo.
+         sed -i 's/"scriptId": ""/"scriptId": "${{ secrets.GAS_SCRIPT_ID }}"/' .clasp.json
 
-      - name: Push Code and Create New Deployment Version
-        run: |
-          # Push the code inside the backend/ folder to the Apps Script project
-          clasp push -f
-          
-          # Deploy a new version using the existing Web App Deployment ID. 
-          # This guarantees your existing GAS Web App URL remains exactly the same 
-          # while bumping the version number behind the scenes.
-          clasp deploy -i ${{ secrets.GAS_DEPLOYMENT_ID }} -d "Auto-Deploy: GitHub Commit ${{ github.sha }}"
+     - name: Push Code and Create New Deployment Version
+       run: |
+         # Push the code inside the backend/ folder to the Apps Script project
+         clasp push -f
+         
+         # Deploy a new version using the existing Web App Deployment ID. 
+         # This guarantees your existing GAS Web App URL remains exactly the same 
+         # while bumping the version number behind the scenes.
+         clasp deploy -i ${{ secrets.GAS_DEPLOYMENT_ID }} -d "Auto-Deploy: GitHub Commit ${{ github.sha }}"
