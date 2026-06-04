@@ -1,7 +1,9 @@
 // ==========================================
 // Instance-Specific Configuration
 // ==========================================
-const APP_CONFIG = {
+// Using 'var' instead of 'const' to prevent Google Apps Script V8 global scope
+// redeclaration errors when this file is synced to the backend.
+var APP_CONFIG = {
 APP_NAME: "App Code Maintainer",
 GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbzf6zu4uxmqe_wC92ixIISm0LRtrOME5nUv94bB0tAd0dbzflLIUydvgE6ISe-qIZuZ/exec",
 TARGET_REPO: "oncloudnintynine/Fail-Safe-Code-Updater",
