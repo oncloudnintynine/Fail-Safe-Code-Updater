@@ -14,6 +14,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .hidden { display: none !important; }
 select option { background-color: #1e1e1e; color: #fff; }
+select optgroup { background-color: #000; color: #9ca3af; font-weight: bold; font-style: normal; }
 /* Custom scrollbar for better aesthetics */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #000; }
@@ -79,7 +80,7 @@ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup ski
 </div>
 <div class="space-y-1.5">
 <label class="font-semibold text-xs text-gray-400">Target Repository</label>
-<select id="gh-repo" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm appearance-none shadow-inner">
+<select id="gh-repo" required class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-indigo-500 transition text-sm shadow-inner appearance-none">
 <option value="">Enter token to load repos...</option>
 </select>
 <div id="repo-pages-link" class="hidden transition-all duration-200"></div>
@@ -138,7 +139,7 @@ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup ski
 <div id="rollback-container" class="hidden flex-col gap-4 pt-3 border-t border-darkborder">
 <div class="space-y-1.5">
 <label class="font-semibold text-xs text-gray-400">Select Backup Version</label>
-<select id="rollback-select" class="w-full border-2 border-darkborder rounded-xl py-3 px-4 bg-darkinput text-white outline-none focus:border-rose-500 transition text-sm shadow-inner">
+<select id="rollback-select" class="w-full border-2 border-darkborder rounded-xl py-3 px-4 bg-darkinput text-white outline-none focus:border-rose-500 transition text-sm shadow-inner appearance-none">
 <!-- Options dynamically injected -->
 </select>
 </div>
@@ -159,6 +160,39 @@ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup ski
 </div>
 </section>
 </div>
+<!-- ENVIRONMENT PROMOTION (CI/CD) -->
+<section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden col-span-1 md:col-span-2 mt-6 mb-8">
+<div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
+<svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+<h2 class="font-bold text-base text-gray-200">4. Environment Promotion (CI/CD)</h2>
+</div>
+<div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+<div class="space-y-1.5">
+<label class="font-semibold text-xs text-gray-400">Source Repository (e.g. Experimental)</label>
+<select id="promote-source" class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-purple-500 transition text-sm shadow-inner appearance-none">
+<option value="">Enter token to load repos...</option>
+</select>
+</div>
+<div class="space-y-1.5">
+<label class="font-semibold text-xs text-gray-400">Target Repository (e.g. Development)</label>
+<select id="promote-target" class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-purple-500 transition text-sm shadow-inner appearance-none">
+<option value="">Enter token to load repos...</option>
+</select>
+<div id="promote-target-pages-link" class="hidden transition-all duration-200"></div>
+</div>
+<div class="space-y-1.5 md:col-span-2">
+<label class="font-semibold text-xs text-gray-400">Excluded Files (Comma-separated, exactly matches path)</label>
+<input type="text" id="promote-exclude" value="backend/config.js" class="w-full border-2 border-darkborder rounded-xl py-2.5 px-4 bg-darkinput text-white outline-none focus:border-purple-500 transition text-sm shadow-inner">
+<p class="text-[10px] text-gray-500 mt-1">Note: All workflow files inside <code class="text-gray-400 font-mono">.github/</code> are automatically excluded.</p>
+</div>
+</div>
+<div class="p-5 pt-0">
+<button type="button" id="promote-btn" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3">
+<span id="promote-btn-text">Promote Code & Auto-Backup Target</span>
+<div id="promote-btn-spinner" class="spinner hidden"></div>
+</button>
+</div>
+</section>
 </div>
 <!-- FOLDER BROWSER MODAL -->
 <div id="folder-browser-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-200 opacity-0">
