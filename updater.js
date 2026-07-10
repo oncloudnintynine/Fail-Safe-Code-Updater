@@ -1036,6 +1036,7 @@ document.getElementById('updater-backup-btn').addEventListener('click', async ()
 const iconFileInput = document.getElementById('icon-file-input');
 const iconEnvSelect = document.getElementById('icon-env-select');
 const iconBgColor = document.getElementById('icon-bg-color');
+const bgColorIndicator = document.getElementById('bg-color-indicator');
 const iconScale = document.getElementById('icon-scale');
 const iconX = document.getElementById('icon-x');
 const iconY = document.getElementById('icon-y');
@@ -1047,16 +1048,12 @@ const resetBtn = document.getElementById('reset-btn');
 const uploadIconsBtn = document.getElementById('upload-icons-btn');
 
 const scaleVal = document.getElementById('scale-val');
-const xVal = document.getElementById('x-val');
-const yVal = document.getElementById('y-val');
 
 const canvas192 = document.getElementById('preview-192-canvas');
 const canvas512 = document.getElementById('preview-512-canvas');
 
 const previewPlaceholder = document.getElementById('preview-placeholder');
-const p192Container = document.getElementById('preview-192-container');
-const pDivider = document.getElementById('preview-divider');
-const p512Container = document.getElementById('preview-512-container');
+const workspaceContainer = document.getElementById('workspace-container');
 
 let iconImg = new Image();
 let iconImgLoaded = false;
@@ -1085,6 +1082,7 @@ function applyIconState(state) {
     iconX.value = state.x;
     iconY.value = state.y;
     iconBgColor.value = state.bgColor;
+    if (bgColorIndicator) bgColorIndicator.style.backgroundColor = state.bgColor;
     iconSharpen.checked = state.sharpen;
     isApplyingHistoryState = false;
     
@@ -1111,8 +1109,6 @@ function updateHistoryButtons() {
 
 function updateLabelValues() {
     scaleVal.textContent = parseFloat(iconScale.value).toFixed(2) + 'x';
-    xVal.textContent = iconX.value + 'px';
-    yVal.textContent = iconY.value + 'px';
 }
 
 function unlockControls() {
@@ -1121,10 +1117,10 @@ function unlockControls() {
     previewPlaceholder.classList.add('opacity-0');
     setTimeout(() => {
         previewPlaceholder.classList.add('hidden');
-        p192Container.classList.remove('opacity-0');
-        pDivider.classList.remove('opacity-0');
-        p512Container.classList.remove('opacity-0');
-    }, 200);
+        workspaceContainer.classList.remove('hidden');
+        // allow flex to apply before transitioning opacity
+        setTimeout(() => workspaceContainer.classList.remove('opacity-0'), 10);
+    }, 300);
 }
 
 iconFileInput.addEventListener('change', (e) => {
@@ -1147,6 +1143,7 @@ iconFileInput.addEventListener('change', (e) => {
             // Default configuration
             iconEnvSelect.value = "prod";
             iconBgColor.value = "#FFFFFF";
+            if (bgColorIndicator) bgColorIndicator.style.backgroundColor = "#FFFFFF";
             iconX.value = 0;
             iconY.value = 0;
             iconScale.value = (iconImg.width > iconImg.height) ? (512 / iconImg.height) : (512 / iconImg.width);
@@ -1170,6 +1167,10 @@ iconFileInput.addEventListener('change', (e) => {
 [iconScale, iconX, iconY].forEach(el => {
     el.addEventListener('input', () => { if(iconImgLoaded) { updateLabelValues(); renderIconCanvases(); } });
     el.addEventListener('change', () => { if(iconImgLoaded) saveHistoryStep(); });
+});
+
+iconBgColor.addEventListener('input', (e) => {
+    if (bgColorIndicator) bgColorIndicator.style.backgroundColor = e.target.value;
 });
 
 [iconBgColor, iconSharpen, iconEnvSelect].forEach(el => {
@@ -1320,12 +1321,11 @@ uploadIconsBtn.addEventListener('click', async () => {
         // Disable controls again
         [iconEnvSelect, iconBgColor, iconScale, iconX, iconY, iconSharpen, uploadIconsBtn].forEach(el => el.disabled = true);
         
-        p192Container.classList.add('opacity-0');
-        pDivider.classList.add('opacity-0');
-        p512Container.classList.add('opacity-0');
+        workspaceContainer.classList.add('opacity-0');
         setTimeout(() => {
+            workspaceContainer.classList.add('hidden');
             previewPlaceholder.classList.remove('hidden');
-            previewPlaceholder.classList.remove('opacity-0');
+            setTimeout(() => previewPlaceholder.classList.remove('opacity-0'), 10);
         }, 300);
 
         pollWorkflowStatus(config.repo, config.token, newCommitSha);
