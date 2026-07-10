@@ -161,7 +161,7 @@ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup ski
 </section>
 </div>
 <!-- ENVIRONMENT PROMOTION (CI/CD) -->
-<section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden col-span-1 md:col-span-2 mt-6 mb-8">
+<section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden col-span-1 md:col-span-2 mt-6 mb-2">
 <div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
 <svg class="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
 <h2 class="font-bold text-base text-gray-200">4. Environment Promotion (CI/CD)</h2>
@@ -191,6 +191,38 @@ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup ski
 <span id="promote-btn-text">Promote Code & Auto-Backup Target</span>
 <div id="promote-btn-spinner" class="spinner hidden"></div>
 </button>
+</div>
+</section>
+
+<!-- APP ICON UPLOAD -->
+<section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden col-span-1 md:col-span-2 mt-6 mb-8">
+<div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
+<svg class="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+<h2 class="font-bold text-base text-gray-200">5. App Icon Management</h2>
+</div>
+<div class="p-5 flex flex-col gap-4">
+    <p class="text-sm text-gray-400">Upload a single image. It will be automatically resized, converted to PNG, and pushed to <code class="text-gray-300">assets/icon-192.png</code> and <code class="text-gray-300">assets/icon-512.png</code>, safely overwriting existing icons.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="space-y-1.5 flex flex-col justify-center">
+            <input type="file" id="icon-file-input" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-pink-900/40 file:text-pink-400 hover:file:bg-pink-800/60 transition cursor-pointer">
+        </div>
+        <div class="flex gap-4 items-center justify-center border-2 border-dashed border-darkborder rounded-xl p-4 bg-darkinput">
+            <div class="flex flex-col items-center gap-2">
+                <img id="preview-192" class="w-12 h-12 rounded-lg bg-black/50 object-cover hidden" />
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">192x192</span>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <img id="preview-512" class="w-20 h-20 rounded-lg bg-black/50 object-cover hidden" />
+                <span class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">512x512</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="p-5 pt-0">
+    <button type="button" id="upload-icons-btn" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+        <span id="upload-icons-btn-text">Push Icons to Repository</span>
+        <div id="upload-icons-btn-spinner" class="spinner hidden"></div>
+    </button>
 </div>
 </section>
 </div>
