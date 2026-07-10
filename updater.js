@@ -1030,93 +1030,255 @@ document.getElementById('updater-backup-btn').addEventListener('click', async ()
 
 
 // ---------------------------------------------------------
-// APP ICON MANAGEMENT (Client-Side Resizing & Base64 Upload)
+// APP ICON STUDIO (Client-Side Canvas Editing & Push)
 // ---------------------------------------------------------
 
 const iconFileInput = document.getElementById('icon-file-input');
+const iconEnvSelect = document.getElementById('icon-env-select');
+const iconBgColor = document.getElementById('icon-bg-color');
+const iconScale = document.getElementById('icon-scale');
+const iconX = document.getElementById('icon-x');
+const iconY = document.getElementById('icon-y');
+const iconSharpen = document.getElementById('icon-sharpen');
+
+const undoBtn = document.getElementById('undo-btn');
+const redoBtn = document.getElementById('redo-btn');
+const resetBtn = document.getElementById('reset-btn');
 const uploadIconsBtn = document.getElementById('upload-icons-btn');
-const preview192 = document.getElementById('preview-192');
-const preview512 = document.getElementById('preview-512');
-let resizedIconsBase64 = {}; // Store { '192': base64data, '512': base64data }
 
-iconFileInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) {
-        resetIconState();
-        return;
-    }
+const scaleVal = document.getElementById('scale-val');
+const xVal = document.getElementById('x-val');
+const yVal = document.getElementById('y-val');
+
+const canvas192 = document.getElementById('preview-192-canvas');
+const canvas512 = document.getElementById('preview-512-canvas');
+
+const previewPlaceholder = document.getElementById('preview-placeholder');
+const p192Container = document.getElementById('preview-192-container');
+const pDivider = document.getElementById('preview-divider');
+const p512Container = document.getElementById('preview-512-container');
+
+let iconImg = new Image();
+let iconImgLoaded = false;
+
+// History Management
+let undoStack = [];
+let redoStack = [];
+let initialConfig = {};
+let isApplyingHistoryState = false;
+
+function captureIconState() {
+    return {
+        env: iconEnvSelect.value,
+        scale: iconScale.value,
+        x: iconX.value,
+        y: iconY.value,
+        bgColor: iconBgColor.value,
+        sharpen: iconSharpen.checked
+    };
+}
+
+function applyIconState(state) {
+    isApplyingHistoryState = true;
+    iconEnvSelect.value = state.env;
+    iconScale.value = state.scale;
+    iconX.value = state.x;
+    iconY.value = state.y;
+    iconBgColor.value = state.bgColor;
+    iconSharpen.checked = state.sharpen;
+    isApplyingHistoryState = false;
     
-    try {
-        const objectUrl = URL.createObjectURL(file);
-        
-        // Resize and convert strictly to PNG
-        resizedIconsBase64['192'] = await resizeImageToPNG(objectUrl, 192);
-        resizedIconsBase64['512'] = await resizeImageToPNG(objectUrl, 512);
+    updateLabelValues();
+    renderIconCanvases();
+    updateHistoryButtons();
+}
 
-        // Update previews natively
-        preview192.src = `data:image/png;base64,${resizedIconsBase64['192']}`;
-        preview512.src = `data:image/png;base64,${resizedIconsBase64['512']}`;
-        
-        preview192.classList.remove('hidden');
-        preview512.classList.remove('hidden');
-        
-        uploadIconsBtn.disabled = false;
-        
-        // Clean up
-        URL.revokeObjectURL(objectUrl);
-        
-    } catch (err) {
-        setStatus("Failed to process image: " + err.message, "error");
-        resetIconState();
+function saveHistoryStep() {
+    if (isApplyingHistoryState || !iconImgLoaded) return;
+    const currentState = captureIconState();
+    if (undoStack.length === 0 || JSON.stringify(undoStack[undoStack.length - 1]) !== JSON.stringify(currentState)) {
+        undoStack.push(currentState);
+        redoStack = []; 
+        updateHistoryButtons();
+    }
+}
+
+function updateHistoryButtons() {
+    undoBtn.disabled = undoStack.length <= 1;
+    redoBtn.disabled = redoStack.length === 0;
+    resetBtn.disabled = !iconImgLoaded;
+}
+
+function updateLabelValues() {
+    scaleVal.textContent = parseFloat(iconScale.value).toFixed(2) + 'x';
+    xVal.textContent = iconX.value + 'px';
+    yVal.textContent = iconY.value + 'px';
+}
+
+function unlockControls() {
+    [iconEnvSelect, iconBgColor, iconScale, iconX, iconY, iconSharpen, uploadIconsBtn].forEach(el => el.disabled = false);
+    
+    previewPlaceholder.classList.add('opacity-0');
+    setTimeout(() => {
+        previewPlaceholder.classList.add('hidden');
+        p192Container.classList.remove('opacity-0');
+        pDivider.classList.remove('opacity-0');
+        p512Container.classList.remove('opacity-0');
+    }, 200);
+}
+
+iconFileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        iconImg = new Image();
+        iconImg.crossOrigin = 'Anonymous';
+        iconImg.onload = () => {
+            iconImgLoaded = true;
+            
+            unlockControls();
+            
+            const maxDim = Math.max(iconImg.width, iconImg.height);
+            iconX.min = -maxDim; iconX.max = maxDim;
+            iconY.min = -maxDim; iconY.max = maxDim;
+            
+            // Default configuration
+            iconEnvSelect.value = "prod";
+            iconBgColor.value = "#FFFFFF";
+            iconX.value = 0;
+            iconY.value = 0;
+            iconScale.value = (iconImg.width > iconImg.height) ? (512 / iconImg.height) : (512 / iconImg.width);
+            iconSharpen.checked = false;
+
+            updateLabelValues();
+
+            initialConfig = captureIconState();
+            undoStack = [captureIconState()];
+            redoStack = [];
+            
+            renderIconCanvases();
+            updateHistoryButtons();
+        };
+        iconImg.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+// Event Bindings for Controls
+[iconScale, iconX, iconY].forEach(el => {
+    el.addEventListener('input', () => { if(iconImgLoaded) { updateLabelValues(); renderIconCanvases(); } });
+    el.addEventListener('change', () => { if(iconImgLoaded) saveHistoryStep(); });
+});
+
+[iconBgColor, iconSharpen, iconEnvSelect].forEach(el => {
+    el.addEventListener('change', () => { if(iconImgLoaded) { renderIconCanvases(); saveHistoryStep(); } });
+});
+
+undoBtn.addEventListener('click', () => {
+    if (undoStack.length > 1) {
+        redoStack.push(undoStack.pop());
+        applyIconState(undoStack[undoStack.length - 1]);
     }
 });
 
-function resetIconState() {
-    resizedIconsBase64 = {};
-    preview192.classList.add('hidden');
-    preview512.classList.add('hidden');
-    preview192.src = '';
-    preview512.src = '';
-    uploadIconsBtn.disabled = true;
-    iconFileInput.value = '';
+redoBtn.addEventListener('click', () => {
+    if (redoStack.length > 0) {
+        const state = redoStack.pop();
+        undoStack.push(state);
+        applyIconState(state);
+    }
+});
+
+resetBtn.addEventListener('click', () => {
+    if (iconImgLoaded) {
+        undoStack = [initialConfig];
+        redoStack = [];
+        applyIconState(initialConfig);
+    }
+});
+
+// Drawing Logic
+function sharpenFilter(ctx, w, h) {
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+    const output = ctx.createImageData(w, h);
+    const outputData = output.data;
+    const k = [  0, -0.5,  0, -0.5,   3, -0.5, 0, -0.5,  0 ];
+
+    for (let y = 1; y < h - 1; y++) {
+        for (let x = 1; x < w - 1; x++) {
+            for (let c = 0; c < 3; c++) {
+                let sum = 0;
+                for (let ky = -1; ky <= 1; ky++) {
+                    for (let kx = -1; kx <= 1; kx++) {
+                        const idx = ((y + ky) * w + (x + kx)) * 4 + c;
+                        const kidx = (ky + 1) * 3 + (kx + 1);
+                        sum += data[idx] * k[kidx];
+                    }
+                }
+                outputData[(y * w + x) * 4 + c] = Math.min(255, Math.max(0, sum));
+            }
+            outputData[(y * w + x) * 4 + 3] = data[(y * w + x) * 4 + 3];
+        }
+    }
+    ctx.putImageData(output, 0, 0);
+}
+
+function drawIconToCanvas(canvas, size, state) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, size, size);
     
-    // Fix: Revert button text and hide spinner after upload completes
-    const btnText = document.getElementById('upload-icons-btn-text');
-    const btnSpinner = document.getElementById('upload-icons-btn-spinner');
-    if (btnText) btnText.textContent = "Push Icons to Repository";
-    if (btnSpinner) btnSpinner.classList.add('hidden');
+    // Background Fill
+    ctx.fillStyle = state.bgColor;
+    ctx.fillRect(0, 0, size, size);
+    
+    // Draw Base Image
+    const scaleModifier = size / 512; 
+    const scale = parseFloat(state.scale) * scaleModifier;
+    const offsetX = parseInt(state.x) * scaleModifier;
+    const offsetY = parseInt(state.y) * scaleModifier;
+
+    const drawWidth = iconImg.width * scale;
+    const drawHeight = iconImg.height * scale;
+    
+    const px = (size - drawWidth) / 2 + offsetX;
+    const py = (size - drawHeight) / 2 + offsetY;
+
+    ctx.drawImage(iconImg, px, py, drawWidth, drawHeight);
+
+    // Apply Filters
+    if (state.sharpen) {
+        sharpenFilter(ctx, size, size);
+    }
+
+    // Apply Environment Banner Overlay
+    if (state.env !== 'prod') {
+        const bannerHeight = size * 0.16;
+        ctx.fillStyle = state.env === 'dev' ? '#FF3B30' : '#8E44AD';
+        ctx.fillRect(0, 0, size, bannerHeight);
+
+        const text = state.env === 'dev' ? 'TESTING' : 'EXPERIMENTATION';
+        const fontSize = bannerHeight * (size === 192 && text.length > 10 ? 0.45 : 0.55);
+        ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, size / 2, bannerHeight / 2);
+    }
 }
 
-/**
- * Loads an image URL onto an offscreen canvas, resizes it to targetSize x targetSize,
- * and exports as a base64 encoded PNG (stripping the data URI prefix).
- */
-function resizeImageToPNG(imageUrl, targetSize) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = targetSize;
-            canvas.height = targetSize;
-            const ctx = canvas.getContext('2d');
-            
-            // Draw image scaled exactly to target dimensions
-            ctx.drawImage(img, 0, 0, targetSize, targetSize);
-            
-            // Output as PNG data URL
-            const dataUrl = canvas.toDataURL('image/png');
-            // Extract pure base64 payload
-            const base64 = dataUrl.split(',')[1];
-            resolve(base64);
-        };
-        img.onerror = () => reject(new Error("Failed to load image for resizing."));
-        img.src = imageUrl;
-    });
+function renderIconCanvases() {
+    if (!iconImgLoaded) return;
+    const state = captureIconState();
+    drawIconToCanvas(canvas192, 192, state);
+    drawIconToCanvas(canvas512, 512, state);
 }
 
+// Push to GitHub
 uploadIconsBtn.addEventListener('click', async () => {
-    if (!resizedIconsBase64['192'] || !resizedIconsBase64['512']) return;
+    if (!iconImgLoaded) return;
     
     const btnText = document.getElementById('upload-icons-btn-text');
     const btnSpinner = document.getElementById('upload-icons-btn-spinner');
@@ -1129,10 +1291,14 @@ uploadIconsBtn.addEventListener('click', async () => {
         btnText.textContent = "Uploading Icons...";
         setStatus("Preparing App Icons for deployment...", "info");
 
+        // Extract pure base64 payload from drawn canvases
+        const base64_192 = canvas192.toDataURL('image/png').split(',')[1];
+        const base64_512 = canvas512.toDataURL('image/png').split(',')[1];
+
         // Construct exact file payload specifically flagged as base64 encoding
         const filesToPush = [
-            { path: 'assets/icon-192.png', content: resizedIconsBase64['192'], encoding: 'base64' },
-            { path: 'assets/icon-512.png', content: resizedIconsBase64['512'], encoding: 'base64' }
+            { path: 'assets/icon-192.png', content: base64_192, encoding: 'base64' },
+            { path: 'assets/icon-512.png', content: base64_512, encoding: 'base64' }
         ];
 
         setStatus(`Pushing new icons to ${config.repo} at assets/icon-*.png...`, "info");
@@ -1142,16 +1308,32 @@ uploadIconsBtn.addEventListener('click', async () => {
             config.branch, 
             config.token, 
             filesToPush, 
-            `Update App Icons (Auto-Resized) via ${APP_NAME}`
+            `Update App Icons via ${APP_NAME} Icon Studio`
         );
         
-        resetIconState();
+        // Reset state post-upload
+        iconFileInput.value = '';
+        iconImgLoaded = false;
+        btnText.textContent = "Push Configured Icons to Repository";
+        btnSpinner.classList.add('hidden');
+        
+        // Disable controls again
+        [iconEnvSelect, iconBgColor, iconScale, iconX, iconY, iconSharpen, uploadIconsBtn].forEach(el => el.disabled = true);
+        
+        p192Container.classList.add('opacity-0');
+        pDivider.classList.add('opacity-0');
+        p512Container.classList.add('opacity-0');
+        setTimeout(() => {
+            previewPlaceholder.classList.remove('hidden');
+            previewPlaceholder.classList.remove('opacity-0');
+        }, 300);
+
         pollWorkflowStatus(config.repo, config.token, newCommitSha);
 
     } catch (err) {
         setStatus(err.message, "error");
         uploadIconsBtn.disabled = false;
         btnSpinner.classList.add('hidden');
-        btnText.textContent = "Push Icons to Repository";
+        btnText.textContent = "Push Configured Icons to Repository";
     }
 });
