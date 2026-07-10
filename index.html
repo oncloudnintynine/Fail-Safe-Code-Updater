@@ -194,37 +194,88 @@ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup ski
 </div>
 </section>
 
-<!-- APP ICON UPLOAD -->
+<!-- APP ICON STUDIO -->
 <section class="bg-darksurface rounded-2xl shadow-xl border border-darkborder overflow-hidden col-span-1 md:col-span-2 mt-6 mb-8">
-<div class="bg-white/5 border-b border-darkborder px-5 py-4 flex items-center gap-3">
-<svg class="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-<h2 class="font-bold text-base text-gray-200">5. App Icon Management</h2>
-</div>
-<div class="p-5 flex flex-col gap-4">
-    <p class="text-sm text-gray-400">Upload a single image. It will be automatically resized, converted to PNG, and pushed to <code class="text-gray-300">assets/icon-192.png</code> and <code class="text-gray-300">assets/icon-512.png</code>, safely overwriting existing icons.</p>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="space-y-1.5 flex flex-col justify-center">
-            <input type="file" id="icon-file-input" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-pink-900/40 file:text-pink-400 hover:file:bg-pink-800/60 transition cursor-pointer">
+    <div class="bg-white/5 border-b border-darkborder px-5 py-4 flex flex-wrap justify-between items-center gap-3">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            <h2 class="font-bold text-base text-gray-200">5. App Icon Studio</h2>
         </div>
-        <div class="flex gap-4 items-center justify-center border-2 border-dashed border-darkborder rounded-xl p-4 bg-darkinput">
-            <div class="flex flex-col items-center gap-2">
-                <img id="preview-192" class="w-12 h-12 rounded-lg bg-black/50 object-cover hidden" />
+        <div class="flex gap-2">
+            <button type="button" id="undo-btn" class="px-3 py-1.5 bg-darkinput border border-darkborder rounded-lg text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 disabled:opacity-30 transition" disabled>Undo</button>
+            <button type="button" id="redo-btn" class="px-3 py-1.5 bg-darkinput border border-darkborder rounded-lg text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 disabled:opacity-30 transition" disabled>Redo</button>
+            <button type="button" id="reset-btn" class="px-3 py-1.5 bg-rose-900/40 border border-rose-800 rounded-lg text-xs font-semibold text-rose-300 hover:text-rose-200 hover:bg-rose-900/60 disabled:opacity-30 transition" disabled>Reset</button>
+        </div>
+    </div>
+    
+    <div class="p-5 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Controls Sidebar -->
+        <div class="lg:col-span-5 space-y-4">
+            <input type="file" id="icon-file-input" accept="image/*" class="w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-pink-900/40 file:text-pink-400 hover:file:bg-pink-800/60 transition cursor-pointer mb-2">
+            
+            <div class="space-y-1.5">
+                <label class="font-semibold text-xs text-gray-400">Environment Banner</label>
+                <select id="icon-env-select" disabled class="w-full border-2 border-darkborder rounded-xl py-2 px-3 bg-darkinput text-white outline-none focus:border-pink-500 transition text-sm shadow-inner appearance-none disabled:opacity-50">
+                    <option value="prod">Production (None)</option>
+                    <option value="dev">Development (Testing)</option>
+                    <option value="exp">Experimentation</option>
+                </select>
+            </div>
+            
+            <div class="space-y-1.5">
+                <label class="font-semibold text-xs text-gray-400">Background Color</label>
+                <input type="color" id="icon-bg-color" value="#FFFFFF" disabled class="w-full h-10 border-2 border-darkborder rounded-xl bg-darkinput cursor-pointer disabled:opacity-50 p-1">
+            </div>
+            
+            <div class="space-y-1.5">
+                <label class="font-semibold text-xs text-gray-400 flex justify-between"><span>Scale / Zoom</span><span id="scale-val" class="text-gray-500">1.00x</span></label>
+                <input type="range" id="icon-scale" min="0.1" max="3" step="0.01" value="1" disabled class="w-full accent-pink-500 disabled:opacity-50">
+            </div>
+            
+            <div class="space-y-1.5">
+                <label class="font-semibold text-xs text-gray-400 flex justify-between"><span>Reposition X</span><span id="x-val" class="text-gray-500">0px</span></label>
+                <input type="range" id="icon-x" min="-500" max="500" step="1" value="0" disabled class="w-full accent-pink-500 disabled:opacity-50">
+            </div>
+            
+            <div class="space-y-1.5">
+                <label class="font-semibold text-xs text-gray-400 flex justify-between"><span>Reposition Y</span><span id="y-val" class="text-gray-500">0px</span></label>
+                <input type="range" id="icon-y" min="-500" max="500" step="1" value="0" disabled class="w-full accent-pink-500 disabled:opacity-50">
+            </div>
+            
+            <div class="flex items-center gap-2 pt-1">
+                <input type="checkbox" id="icon-sharpen" disabled class="w-4 h-4 rounded accent-pink-600 bg-darkinput border-darkborder cursor-pointer disabled:opacity-50">
+                <label for="icon-sharpen" class="text-sm font-semibold text-gray-400 cursor-pointer select-none transition hover:text-white">Apply Sharpen Filter</label>
+            </div>
+        </div>
+        
+        <!-- Previews Workspace -->
+        <div class="lg:col-span-7 flex flex-col sm:flex-row gap-4 items-center justify-center border-2 border-dashed border-darkborder rounded-xl p-6 bg-darkinput relative">
+            <div id="preview-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 pointer-events-none">
+                <svg class="w-12 h-12 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span class="text-xs font-semibold tracking-wider uppercase">Upload an image to start</span>
+            </div>
+            
+            <div class="flex flex-col items-center gap-3 z-10 opacity-0 transition-opacity duration-300" id="preview-192-container">
+                <canvas id="preview-192-canvas" class="w-24 h-24 sm:w-32 sm:h-32 rounded-[22.5%] bg-black/50 shadow-2xl transition-all" width="192" height="192"></canvas>
                 <span class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">192x192</span>
             </div>
-            <div class="flex flex-col items-center gap-2">
-                <img id="preview-512" class="w-20 h-20 rounded-lg bg-black/50 object-cover hidden" />
+            
+            <div class="hidden sm:block border-l border-darkborder h-24 mx-4 z-10 opacity-0 transition-opacity duration-300" id="preview-divider"></div>
+            
+            <div class="flex flex-col items-center gap-3 z-10 opacity-0 transition-opacity duration-300" id="preview-512-container">
+                <canvas id="preview-512-canvas" class="w-32 h-32 sm:w-48 sm:h-48 rounded-[22.5%] bg-black/50 shadow-2xl transition-all" width="512" height="512"></canvas>
                 <span class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">512x512</span>
             </div>
         </div>
     </div>
-</div>
-<div class="p-5 pt-0">
-    <button type="button" id="upload-icons-btn" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-        <span id="upload-icons-btn-text">Push Icons to Repository</span>
-        <div id="upload-icons-btn-spinner" class="spinner hidden"></div>
-    </button>
-</div>
+    <div class="p-5 pt-0">
+        <button type="button" id="upload-icons-btn" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all active:scale-[0.98] flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+            <span id="upload-icons-btn-text">Push Configured Icons to Repository</span>
+            <div id="upload-icons-btn-spinner" class="spinner hidden"></div>
+        </button>
+    </div>
 </section>
+
 </div>
 <!-- FOLDER BROWSER MODAL -->
 <div id="folder-browser-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-200 opacity-0">
