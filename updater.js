@@ -1079,6 +1079,12 @@ function resetIconState() {
     preview512.src = '';
     uploadIconsBtn.disabled = true;
     iconFileInput.value = '';
+    
+    // Fix: Revert button text and hide spinner after upload completes
+    const btnText = document.getElementById('upload-icons-btn-text');
+    const btnSpinner = document.getElementById('upload-icons-btn-spinner');
+    if (btnText) btnText.textContent = "Push Icons to Repository";
+    if (btnSpinner) btnSpinner.classList.add('hidden');
 }
 
 /**
