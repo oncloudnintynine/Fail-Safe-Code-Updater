@@ -1049,8 +1049,18 @@ const uploadIconsBtn = document.getElementById('upload-icons-btn');
 
 const scaleVal = document.getElementById('scale-val');
 
-const canvas192 = document.getElementById('preview-192-canvas');
+// Remove the 192 element from DOM to align with updated UI requirements
+const obsolete192Canvas = document.getElementById('preview-192-canvas');
+if (obsolete192Canvas && obsolete192Canvas.parentElement) {
+    obsolete192Canvas.parentElement.remove();
+}
+
 const canvas512 = document.getElementById('preview-512-canvas');
+
+// Create an offscreen canvas for 192x192 processing specifically for pushing to the repo
+const offscreenCanvas192 = document.createElement('canvas');
+offscreenCanvas192.width = 192;
+offscreenCanvas192.height = 192;
 
 const previewPlaceholder = document.getElementById('preview-placeholder');
 const workspaceContainer = document.getElementById('workspace-container');
@@ -1273,8 +1283,12 @@ function drawIconToCanvas(canvas, size, state) {
 function renderIconCanvases() {
     if (!iconImgLoaded) return;
     const state = captureIconState();
-    drawIconToCanvas(canvas192, 192, state);
+    
+    // Draw visible canvas
     drawIconToCanvas(canvas512, 512, state);
+    
+    // Silently draw the offscreen 192x192 canvas for final processing
+    drawIconToCanvas(offscreenCanvas192, 192, state);
 }
 
 // Push to GitHub
@@ -1293,7 +1307,7 @@ uploadIconsBtn.addEventListener('click', async () => {
         setStatus("Preparing App Icons for deployment...", "info");
 
         // Extract pure base64 payload from drawn canvases
-        const base64_192 = canvas192.toDataURL('image/png').split(',')[1];
+        const base64_192 = offscreenCanvas192.toDataURL('image/png').split(',')[1];
         const base64_512 = canvas512.toDataURL('image/png').split(',')[1];
 
         // Construct exact file payload specifically flagged as base64 encoding
