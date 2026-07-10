@@ -238,8 +238,8 @@ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup ski
                 <span class="text-xs font-semibold tracking-wider uppercase mt-2">Upload an image to start studio</span>
             </div>
 
-            <!-- Active Workspace Containers (Hidden initially) -->
-            <div id="workspace-container" class="opacity-0 hidden w-full flex flex-col lg:flex-row items-center justify-center gap-10 transition-opacity duration-300 z-10">
+            <!-- Active Workspace Container (Hidden initially) -->
+            <div id="workspace-container" class="opacity-0 hidden w-full flex items-center justify-center transition-opacity duration-300 z-10">
                 
                 <!-- Main Interactive Area -->
                 <div class="flex flex-col items-center gap-4">
@@ -279,13 +279,6 @@ navigator.serviceWorker.register('sw.js').catch(err => console.log('SW setup ski
                         <span id="scale-val" class="text-[10px] font-mono text-gray-400 w-8 text-right shrink-0">1.00x</span>
                     </div>
                 </div>
-
-                <!-- Secondary Thumbnail Area -->
-                <div class="flex flex-col items-center gap-3 pt-6 lg:pt-0 lg:border-l border-darkborder lg:pl-10">
-                    <canvas id="preview-192-canvas" class="w-32 h-32 rounded-[22.5%] bg-black/50 shadow-lg border border-darkborder" width="192" height="192"></canvas>
-                    <span class="text-[10px] text-gray-500 uppercase tracking-wider font-bold">192x192 Output</span>
-                </div>
-
             </div>
         </div>
     </div>
