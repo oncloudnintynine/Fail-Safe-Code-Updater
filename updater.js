@@ -9,20 +9,20 @@ const APP_NAME = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.APP_NAME ? APP_
 // --- INSTANT UI OVERRIDES ---
 // Executes immediately since the script is placed at the end of the <body>
 (function applyConfigUI() {
- const appTitle = document.getElementById('app-title');
- const appHeaderName = document.getElementById('app-header-name');
- const updaterBackupBtnText = document.getElementById('updater-backup-btn-text');
- 
- if (appTitle) appTitle.textContent = APP_NAME;
- if (appHeaderName) appHeaderName.textContent = APP_NAME;
- if (updaterBackupBtnText) updaterBackupBtnText.textContent = `Backup ${APP_NAME}`;
+const appTitle = document.getElementById('app-title');
+const appHeaderName = document.getElementById('app-header-name');
+const updaterBackupBtnText = document.getElementById('updater-backup-btn-text');
 
- if (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.LINKS) {
-     const tplLink = document.getElementById('link-template-prompt');
-     const tknLink = document.getElementById('link-tkn');
-     if (tplLink && APP_CONFIG.LINKS.TEMPLATE_PROMPT) tplLink.href = APP_CONFIG.LINKS.TEMPLATE_PROMPT;
-     if (tknLink && APP_CONFIG.LINKS.TKN) tknLink.href = APP_CONFIG.LINKS.TKN;
- }
+if (appTitle) appTitle.textContent = APP_NAME;
+if (appHeaderName) appHeaderName.textContent = APP_NAME;
+if (updaterBackupBtnText) updaterBackupBtnText.textContent = `Backup ${APP_NAME}`;
+
+if (typeof APP_CONFIG !== 'undefined' && APP_CONFIG.LINKS) {
+    const tplLink = document.getElementById('link-template-prompt');
+    const tknLink = document.getElementById('link-tkn');
+    if (tplLink && APP_CONFIG.LINKS.TEMPLATE_PROMPT) tplLink.href = APP_CONFIG.LINKS.TEMPLATE_PROMPT;
+    if (tknLink && APP_CONFIG.LINKS.TKN) tknLink.href = APP_CONFIG.LINKS.TKN;
+}
 })();
 
 // --- UTILITY LOGIC & STATE ---
@@ -59,25 +59,25 @@ const selectedFolderInfo = document.getElementById('selected-folder-info');
 let activeSelectedFolder = null; 
 
 document.addEventListener("DOMContentLoaded", () => {
- tokenInput.value = localStorage.getItem('acm_gh_token') || '';
- branchInput.value = localStorage.getItem('acm_gh_branch') || 'main';
- skipBackupCheckbox.checked = localStorage.getItem('acm_skip_backup') === 'true';
+tokenInput.value = localStorage.getItem('acm_gh_token') || '';
+branchInput.value = localStorage.getItem('acm_gh_branch') || 'main';
+skipBackupCheckbox.checked = localStorage.getItem('acm_skip_backup') === 'true';
 
- const savedFolderId = localStorage.getItem('acm_drive_folder_id') || localStorage.getItem('acm_drive_folder');
+const savedFolderId = localStorage.getItem('acm_drive_folder_id') || localStorage.getItem('acm_drive_folder');
 
- if (savedFolderId) {
-   folderInput.dataset.folderId = savedFolderId;
-   // Re-fetch to guarantee we get the separate name and path components for the UI update
-   fetchFolderName(savedFolderId);
- }
+if (savedFolderId) {
+  folderInput.dataset.folderId = savedFolderId;
+  // Re-fetch to guarantee we get the separate name and path components for the UI update
+  fetchFolderName(savedFolderId);
+}
 
- toggleBtnText();
- if (tokenInput.value.trim()) fetchRepos();
+toggleBtnText();
+if (tokenInput.value.trim()) fetchRepos();
 });
 
 tokenInput.addEventListener('change', (e) => {
- localStorage.setItem('acm_gh_token', e.target.value.trim());
- if (e.target.value.trim()) fetchRepos();
+localStorage.setItem('acm_gh_token', e.target.value.trim());
+if (e.target.value.trim()) fetchRepos();
 });
 
 folderInput.addEventListener('input', () => {
@@ -86,36 +86,36 @@ driveFolderNameDisplay.classList.add('hidden');
 });
 
 folderInput.addEventListener('change', (e) => {
- const val = e.target.value.trim();
- if (val) {
-   fetchFolderName(val);
- } else {
-   driveFolderNameDisplay.classList.add('hidden');
-   localStorage.removeItem('acm_drive_folder_id');
-   localStorage.removeItem('acm_drive_folder_path');
-   localStorage.removeItem('acm_drive_folder'); // clean up legacy item
- }
+const val = e.target.value.trim();
+if (val) {
+  fetchFolderName(val);
+} else {
+  driveFolderNameDisplay.classList.add('hidden');
+  localStorage.removeItem('acm_drive_folder_id');
+  localStorage.removeItem('acm_drive_folder_path');
+  localStorage.removeItem('acm_drive_folder'); // clean up legacy item
+}
 });
 
 branchInput.addEventListener('change', (e) => localStorage.setItem('acm_gh_branch', e.target.value.trim()));
 
 repoSelect.addEventListener('change', (e) => {
-  localStorage.setItem('acm_gh_repo', e.target.value);
-  checkGitHubPages(e.target.value, tokenInput.value.trim(), repoPagesLink);
+ localStorage.setItem('acm_gh_repo', e.target.value);
+ checkGitHubPages(e.target.value, tokenInput.value.trim(), repoPagesLink);
 });
 
 promoteSource.addEventListener('change', (e) => {
-  localStorage.setItem('acm_promote_source', e.target.value);
+ localStorage.setItem('acm_promote_source', e.target.value);
 });
 
 promoteTarget.addEventListener('change', (e) => {
-  localStorage.setItem('acm_promote_target', e.target.value);
-  checkGitHubPages(e.target.value, tokenInput.value.trim(), promoteTargetPagesLink);
+ localStorage.setItem('acm_promote_target', e.target.value);
+ checkGitHubPages(e.target.value, tokenInput.value.trim(), promoteTargetPagesLink);
 });
 
 skipBackupCheckbox.addEventListener('change', (e) => {
- localStorage.setItem('acm_skip_backup', e.target.checked);
- toggleBtnText();
+localStorage.setItem('acm_skip_backup', e.target.checked);
+toggleBtnText();
 });
 
 // INTELLIGENT BATCH DETECTION
@@ -125,56 +125,56 @@ const payload = e.target.value;
 const batchMatch = payload.match(/Batch\s+(\d+)\s+Delivery/i);
 
 if (batchMatch) {
-  const batchNum = parseInt(batchMatch[1], 10);
-  if (batchNum === 1) {
-      // Batch 1: Require backup (uncheck skip)
-      skipBackupCheckbox.checked = false;
-  } else if (batchNum > 1) {
-      // Subsequent Batches: Skip backup to save time/API
-      skipBackupCheckbox.checked = true;
-  }
-  localStorage.setItem('acm_skip_backup', skipBackupCheckbox.checked);
-  toggleBtnText();
+ const batchNum = parseInt(batchMatch[1], 10);
+ if (batchNum === 1) {
+     // Batch 1: Require backup (uncheck skip)
+     skipBackupCheckbox.checked = false;
+ } else if (batchNum > 1) {
+     // Subsequent Batches: Skip backup to save time/API
+     skipBackupCheckbox.checked = true;
+ }
+ localStorage.setItem('acm_skip_backup', skipBackupCheckbox.checked);
+ toggleBtnText();
 }
 });
 
 function toggleBtnText() {
- if (skipBackupCheckbox.checked) {
-   updateBtnText.textContent = "Push Code (Skip Backup)";
- } else {
-   updateBtnText.textContent = "Backup Repo & Push Code";
- }
+if (skipBackupCheckbox.checked) {
+  updateBtnText.textContent = "Push Code (Skip Backup)";
+} else {
+  updateBtnText.textContent = "Backup Repo & Push Code";
+}
 }
 
 function setStatus(msg, type = 'info') {
- statusMsg.innerHTML = msg;
- statusMsg.className = 'sticky top-4 z-50 shadow-2xl p-4 rounded-xl text-sm font-semibold text-center transition-all border backdrop-blur-md';
+statusMsg.innerHTML = msg;
+statusMsg.className = 'sticky top-4 z-50 shadow-2xl p-4 rounded-xl text-sm font-semibold text-center transition-all border backdrop-blur-md';
 
- if (type === 'error') {
-   statusMsg.classList.add('bg-rose-900/80', 'text-rose-100', 'border-rose-800');
- } else if (type === 'success') {
-   statusMsg.classList.add('bg-emerald-900/80', 'text-emerald-100', 'border-emerald-800');
- } else {
-   statusMsg.classList.add('bg-blue-900/80', 'text-blue-100', 'border-blue-800');
- }
- statusMsg.classList.remove('hidden');
+if (type === 'error') {
+  statusMsg.classList.add('bg-rose-900/80', 'text-rose-100', 'border-rose-800');
+} else if (type === 'success') {
+  statusMsg.classList.add('bg-emerald-900/80', 'text-emerald-100', 'border-emerald-800');
+} else {
+  statusMsg.classList.add('bg-blue-900/80', 'text-blue-100', 'border-blue-800');
+}
+statusMsg.classList.remove('hidden');
 }
 
 function generateBackupLinkHtml(url, label = "View on Google Drive &nearr;") {
- return `
- <span class="inline-flex items-center gap-1.5 align-middle whitespace-nowrap mt-2 md:mt-0 md:ml-2">
-   <a href="${url}" target="_blank" class="inline-block underline font-bold hover:text-white transition-colors text-xs bg-black/20 px-3 py-1.5 rounded-lg border border-white/10 shadow-sm">${label}</a>
-   <button type="button" onclick="navigator.clipboard.writeText('${url}'); const o = this.innerHTML; this.innerHTML = '<svg class=\\'w-4 h-4 text-emerald-400\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'currentColor\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'2\\' d=\\'M5 13l4 4L19 7\\'/></svg>'; setTimeout(() => this.innerHTML = o, 2000);" class="inline-flex items-center justify-center p-1.5 bg-black/20 hover:bg-black/40 border border-white/10 rounded-lg shadow-sm text-gray-300 hover:text-white transition-all active:scale-95" title="Copy Backup Link">
-     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-   </button>
- </span>`;
+return `
+<span class="inline-flex items-center gap-1.5 align-middle whitespace-nowrap mt-2 md:mt-0 md:ml-2">
+  <a href="${url}" target="_blank" class="inline-block underline font-bold hover:text-white transition-colors text-xs bg-black/20 px-3 py-1.5 rounded-lg border border-white/10 shadow-sm">${label}</a>
+  <button type="button" onclick="navigator.clipboard.writeText('${url}'); const o = this.innerHTML; this.innerHTML = '<svg class=\\'w-4 h-4 text-emerald-400\\' fill=\\'none\\' viewBox=\\'0 0 24 24\\' stroke=\\'currentColor\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' stroke-width=\\'2\\' d=\\'M5 13l4 4L19 7\\'/></svg>'; setTimeout(() => this.innerHTML = o, 2000);" class="inline-flex items-center justify-center p-1.5 bg-black/20 hover:bg-black/40 border border-white/10 rounded-lg shadow-sm text-gray-300 hover:text-white transition-all active:scale-95" title="Copy Backup Link">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+  </button>
+</span>`;
 }
 
 function extractFolderId(input) {
 let folderId = input.trim();
 if (folderId.includes('drive.google.com')) {
-  const match = folderId.match(/folders\/([a-zA-Z0-9_-]+)/);
-  if (match) folderId = match[1];
+ const match = folderId.match(/folders\/([a-zA-Z0-9_-]+)/);
+ if (match) folderId = match[1];
 }
 return folderId;
 }
@@ -182,9 +182,9 @@ return folderId;
 async function fetchFolderName(rawInput) {
 const folderId = extractFolderId(rawInput);
 if (!folderId) {
-  driveFolderNameDisplay.classList.add('hidden');
-  delete folderInput.dataset.folderId;
-  return;
+ driveFolderNameDisplay.classList.add('hidden');
+ delete folderInput.dataset.folderId;
+ return;
 }
 
 driveFolderNameDisplay.classList.remove('hidden');
@@ -192,97 +192,97 @@ driveFolderNameDisplay.className = 'text-[11px] text-gray-400 font-medium px-1 m
 driveFolderNameDisplay.textContent = 'Resolving folder path...';
 
 try {
-  const data = await gasCall(GAS_WEB_APP_URL, { action: 'getFolderInfo', folderId });
-  
-  folderInput.dataset.folderId = data.id;
-  folderInput.value = data.name; // Displays only the folder name in the input box
-  localStorage.setItem('acm_drive_folder_id', data.id);
-  localStorage.setItem('acm_drive_folder_path', data.path || data.name);
-  
-  const driveLink = `https://drive.google.com/drive/folders/${data.id}`;
-  driveFolderNameDisplay.className = 'text-[11px] text-emerald-400 font-medium px-1 mt-1.5 truncate';
-  driveFolderNameDisplay.innerHTML = `
-      <a href="${driveLink}" target="_blank" class="hover:text-emerald-300 hover:underline flex items-center gap-1.5 w-fit" title="Open in Google Drive">
-          <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
-          ${data.path || data.name}
-      </a>`;
+ const data = await gasCall(GAS_WEB_APP_URL, { action: 'getFolderInfo', folderId });
+ 
+ folderInput.dataset.folderId = data.id;
+ folderInput.value = data.name; // Displays only the folder name in the input box
+ localStorage.setItem('acm_drive_folder_id', data.id);
+ localStorage.setItem('acm_drive_folder_path', data.path || data.name);
+ 
+ const driveLink = `https://drive.google.com/drive/folders/${data.id}`;
+ driveFolderNameDisplay.className = 'text-[11px] text-emerald-400 font-medium px-1 mt-1.5 truncate';
+ driveFolderNameDisplay.innerHTML = `
+     <a href="${driveLink}" target="_blank" class="hover:text-emerald-300 hover:underline flex items-center gap-1.5 w-fit" title="Open in Google Drive">
+         <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
+         ${data.path || data.name}
+     </a>`;
 } catch (err) {
-  driveFolderNameDisplay.className = 'text-[11px] text-rose-400 font-medium px-1 mt-1.5 truncate';
-  driveFolderNameDisplay.textContent = 'Invalid or inaccessible folder ID';
-  delete folderInput.dataset.folderId;
+ driveFolderNameDisplay.className = 'text-[11px] text-rose-400 font-medium px-1 mt-1.5 truncate';
+ driveFolderNameDisplay.textContent = 'Invalid or inaccessible folder ID';
+ delete folderInput.dataset.folderId;
 }
 }
 
 async function checkGitHubPages(repo, token, linkElement) {
-  linkElement.classList.remove('hidden');
-  linkElement.className = 'text-[11px] text-gray-400 font-medium px-1 mt-1.5 truncate transition-all duration-200';
-  linkElement.textContent = 'Checking GitHub Pages status...';
-  
-  if (!repo || !token) {
-      linkElement.classList.add('hidden');
-      return;
-  }
+ linkElement.classList.remove('hidden');
+ linkElement.className = 'text-[11px] text-gray-400 font-medium px-1 mt-1.5 truncate transition-all duration-200';
+ linkElement.textContent = 'Checking GitHub Pages status...';
+ 
+ if (!repo || !token) {
+     linkElement.classList.add('hidden');
+     return;
+ }
 
-  try {
-      const res = await fetch(`https://api.github.com/repos/${repo}/pages`, {
-          headers: { 
-              "Authorization": `Bearer ${token}`, 
-              "Accept": "application/vnd.github.v3+json" 
-          }
-      });
+ try {
+     const res = await fetch(`https://api.github.com/repos/${repo}/pages`, {
+         headers: { 
+             "Authorization": `Bearer ${token}`, 
+             "Accept": "application/vnd.github.v3+json" 
+         }
+     });
 
-      if (res.ok) {
-          const data = await res.json();
-          const url = data.html_url;
-          linkElement.className = 'text-[11px] text-emerald-400 font-medium px-1 mt-1.5 truncate transition-all duration-200';
-          linkElement.innerHTML = `
-              <a href="${url}" target="_blank" class="hover:text-emerald-300 hover:underline flex items-center gap-1 w-fit" title="Open GitHub Pages Site">
-                  <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                  ${url}
-              </a>`;
-      } else {
-          linkElement.className = 'text-[11px] text-gray-500 font-medium px-1 mt-1.5 truncate transition-all duration-200';
-          linkElement.textContent = 'No GitHub Pages site configured.';
-      }
-  } catch (e) {
-      linkElement.className = 'text-[11px] text-rose-400 font-medium px-1 mt-1.5 truncate transition-all duration-200';
-      linkElement.textContent = 'Failed to fetch Pages info.';
-  }
+     if (res.ok) {
+         const data = await res.json();
+         const url = data.html_url;
+         linkElement.className = 'text-[11px] text-emerald-400 font-medium px-1 mt-1.5 truncate transition-all duration-200';
+         linkElement.innerHTML = `
+             <a href="${url}" target="_blank" class="hover:text-emerald-300 hover:underline flex items-center gap-1 w-fit" title="Open GitHub Pages Site">
+                 <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                 ${url}
+             </a>`;
+     } else {
+         linkElement.className = 'text-[11px] text-gray-500 font-medium px-1 mt-1.5 truncate transition-all duration-200';
+         linkElement.textContent = 'No GitHub Pages site configured.';
+     }
+ } catch (e) {
+     linkElement.className = 'text-[11px] text-rose-400 font-medium px-1 mt-1.5 truncate transition-all duration-200';
+     linkElement.textContent = 'Failed to fetch Pages info.';
+ }
 }
 
 function getConfig() {
- const repo = document.getElementById('gh-repo').value.trim();
- const branch = document.getElementById('gh-branch').value.trim();
- const token = document.getElementById('gh-token').value.trim();
- const folderInputEl = document.getElementById('gh-drive-folder');
- const folderInputVal = folderInputEl.value.trim();
- const storedFolderId = folderInputEl.dataset.folderId;
+const repo = document.getElementById('gh-repo').value.trim();
+const branch = document.getElementById('gh-branch').value.trim();
+const token = document.getElementById('gh-token').value.trim();
+const folderInputEl = document.getElementById('gh-drive-folder');
+const folderInputVal = folderInputEl.value.trim();
+const storedFolderId = folderInputEl.dataset.folderId;
 
- if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
-   throw new Error("GAS Web App URL is missing. Please configure it in config.js.");
- }
- if (!repo || !branch || !token || !folderInputVal) {
-   throw new Error("All configuration fields in Step 1 are required.");
- }
+if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL_HERE") {
+  throw new Error("GAS Web App URL is missing. Please configure it in config.js.");
+}
+if (!repo || !branch || !token || !folderInputVal) {
+  throw new Error("All configuration fields in Step 1 are required.");
+}
 
- const folderId = storedFolderId || extractFolderId(folderInputVal);
- if (!folderId) {
-   throw new Error("Invalid Google Drive Folder ID or URL.");
- }
+const folderId = storedFolderId || extractFolderId(folderInputVal);
+if (!folderId) {
+  throw new Error("Invalid Google Drive Folder ID or URL.");
+}
 
- return { repo, branch, token, gasUrl: GAS_WEB_APP_URL, folderId, skipBackup: skipBackupCheckbox.checked };
+return { repo, branch, token, gasUrl: GAS_WEB_APP_URL, folderId, skipBackup: skipBackupCheckbox.checked };
 }
 
 async function gasCall(gasUrl, payload) {
- const res = await fetch(gasUrl, {
-   method: 'POST',
-   mode: 'cors',
-   headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-   body: JSON.stringify(payload)
- });
- const data = await res.json();
- if (data.error) throw new Error("GAS Error: " + data.error);
- return data;
+const res = await fetch(gasUrl, {
+  method: 'POST',
+  mode: 'cors',
+  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+  body: JSON.stringify(payload)
+});
+const data = await res.json();
+if (data.error) throw new Error("GAS Error: " + data.error);
+return data;
 }
 
 // --- FOLDER BROWSER MODAL LOGIC ---
@@ -304,7 +304,7 @@ folderModal.classList.add('opacity-0');
 folderModalContent.classList.remove('scale-100', 'opacity-100');
 folderModalContent.classList.add('scale-95', 'opacity-0');
 setTimeout(() => {
-  folderModal.classList.add('hidden');
+ folderModal.classList.add('hidden');
 }, 200); 
 }
 
@@ -322,710 +322,712 @@ folderList.innerHTML = '';
 btnFolderUp.disabled = true;
 
 try {
-  const data = await gasCall(GAS_WEB_APP_URL, { action: 'getFolders', parentId: parentId });
-  
-  currentFolderPath.textContent = data.current.name;
-  
-  if (data.parent) {
-      btnFolderUp.disabled = false;
-      btnFolderUp.onclick = () => loadFolders(data.parent.id);
-  } else {
-      btnFolderUp.disabled = true;
-      btnFolderUp.onclick = null;
-  }
+ const data = await gasCall(GAS_WEB_APP_URL, { action: 'getFolders', parentId: parentId });
+ 
+ currentFolderPath.textContent = data.current.name;
+ 
+ if (data.parent) {
+     btnFolderUp.disabled = false;
+     btnFolderUp.onclick = () => loadFolders(data.parent.id);
+ } else {
+     btnFolderUp.disabled = true;
+     btnFolderUp.onclick = null;
+ }
 
-  renderFolderList(data.folders);
+ renderFolderList(data.folders);
 } catch (err) {
-  if (err.message.includes('Invalid action')) {
-      setStatus("Folder Browser requires backend update. Please manually paste your Folder ID for this deployment.", "error");
-      currentFolderPath.textContent = "Backend update required";
-  } else {
-      setStatus("Failed to load folders: " + err.message, "error");
-      currentFolderPath.textContent = "Error loading folders";
-  }
+ if (err.message.includes('Invalid action')) {
+     setStatus("Folder Browser requires backend update. Please manually paste your Folder ID for this deployment.", "error");
+     currentFolderPath.textContent = "Backend update required";
+ } else {
+     setStatus("Failed to load folders: " + err.message, "error");
+     currentFolderPath.textContent = "Error loading folders";
+ }
 } finally {
-  folderLoading.classList.add('hidden');
+ folderLoading.classList.add('hidden');
 }
 }
 
 function renderFolderList(folders) {
 folderList.innerHTML = '';
 if (folders.length === 0) {
-  folderList.innerHTML = '<div class="p-4 text-center text-sm text-gray-500">No folders found</div>';
-  return;
+ folderList.innerHTML = '<div class="p-4 text-center text-sm text-gray-500">No folders found</div>';
+ return;
 }
 
 folders.forEach(f => {
-  const btn = document.createElement('button');
-  btn.type = 'button';
-  btn.className = 'w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10 group focus:outline-none';
-  
-  const isSelected = activeSelectedFolder && activeSelectedFolder.id === f.id;
-  if (isSelected) {
-      btn.classList.add('bg-indigo-900/40', 'border-indigo-500/50');
-      btn.classList.remove('hover:bg-white/5', 'hover:border-white/10');
-  }
+ const btn = document.createElement('button');
+ btn.type = 'button';
+ btn.className = 'w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition border border-transparent hover:border-white/10 group focus:outline-none';
+ 
+ const isSelected = activeSelectedFolder && activeSelectedFolder.id === f.id;
+ if (isSelected) {
+     btn.classList.add('bg-indigo-900/40', 'border-indigo-500/50');
+     btn.classList.remove('hover:bg-white/5', 'hover:border-white/10');
+ }
 
-  btn.innerHTML = `
-      <div class="flex items-center gap-3 overflow-hidden">
-          <svg class="w-6 h-6 shrink-0 ${isSelected ? 'text-indigo-400' : 'text-gray-400 group-hover:text-gray-300'}" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
-          <span class="text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-300 group-hover:text-white'} truncate">${f.name}</span>
-      </div>
-      <div class="flex items-center gap-2">
-          <div class="p-1.5 rounded-lg bg-black/20 hover:bg-black/40 text-gray-400 hover:text-white transition btn-enter-folder" title="Open Folder">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          </div>
-      </div>
-  `;
+ btn.innerHTML = `
+     <div class="flex items-center gap-3 overflow-hidden">
+         <svg class="w-6 h-6 shrink-0 ${isSelected ? 'text-indigo-400' : 'text-gray-400 group-hover:text-gray-300'}" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/></svg>
+         <span class="text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-300 group-hover:text-white'} truncate">${f.name}</span>
+     </div>
+     <div class="flex items-center gap-2">
+         <div class="p-1.5 rounded-lg bg-black/20 hover:bg-black/40 text-gray-400 hover:text-white transition btn-enter-folder" title="Open Folder">
+             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+         </div>
+     </div>
+ `;
 
-  btn.addEventListener('click', (e) => {
-      if (e.target.closest('.btn-enter-folder')) return;
-      activeSelectedFolder = { id: f.id, name: f.name };
-      updateSelectedFolderUI();
-      
-      Array.from(folderList.children).forEach(child => {
-          child.classList.remove('bg-indigo-900/40', 'border-indigo-500/50');
-          child.classList.add('hover:bg-white/5', 'hover:border-white/10');
-          const svg = child.querySelector('svg');
-          svg.classList.remove('text-indigo-400');
-          svg.classList.add('text-gray-400');
-          const span = child.querySelector('span');
-          span.classList.remove('text-white');
-          span.classList.add('text-gray-300');
-      });
-      btn.classList.remove('hover:bg-white/5', 'hover:border-white/10');
-      btn.classList.add('bg-indigo-900/40', 'border-indigo-500/50');
-      btn.querySelector('svg').classList.add('text-indigo-400');
-      btn.querySelector('svg').classList.remove('text-gray-400');
-      btn.querySelector('span').classList.add('text-white');
-      btn.querySelector('span').classList.remove('text-gray-300');
-  });
+ btn.addEventListener('click', (e) => {
+     if (e.target.closest('.btn-enter-folder')) return;
+     activeSelectedFolder = { id: f.id, name: f.name };
+     updateSelectedFolderUI();
+     
+     Array.from(folderList.children).forEach(child => {
+         child.classList.remove('bg-indigo-900/40', 'border-indigo-500/50');
+         child.classList.add('hover:bg-white/5', 'hover:border-white/10');
+         const svg = child.querySelector('svg');
+         svg.classList.remove('text-indigo-400');
+         svg.classList.add('text-gray-400');
+         const span = child.querySelector('span');
+         span.classList.remove('text-white');
+         span.classList.add('text-gray-300');
+     });
+     btn.classList.remove('hover:bg-white/5', 'hover:border-white/10');
+     btn.classList.add('bg-indigo-900/40', 'border-indigo-500/50');
+     btn.querySelector('svg').classList.add('text-indigo-400');
+     btn.querySelector('svg').classList.remove('text-gray-400');
+     btn.querySelector('span').classList.add('text-white');
+     btn.querySelector('span').classList.remove('text-gray-300');
+ });
 
-  const enterBtn = btn.querySelector('.btn-enter-folder');
-  enterBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      loadFolders(f.id);
-  });
+ const enterBtn = btn.querySelector('.btn-enter-folder');
+ enterBtn.addEventListener('click', (e) => {
+     e.stopPropagation();
+     loadFolders(f.id);
+ });
 
-  folderList.appendChild(btn);
+ folderList.appendChild(btn);
 });
 }
 
 function updateSelectedFolderUI() {
 if (activeSelectedFolder) {
-  selectedFolderInfo.textContent = `Selected: ${activeSelectedFolder.name}`;
-  selectedFolderInfo.classList.add('text-indigo-300');
-  selectedFolderInfo.classList.remove('text-gray-500');
-  btnConfirmFolder.disabled = false;
+ selectedFolderInfo.textContent = `Selected: ${activeSelectedFolder.name}`;
+ selectedFolderInfo.classList.add('text-indigo-300');
+ selectedFolderInfo.classList.remove('text-gray-500');
+ btnConfirmFolder.disabled = false;
 } else {
-  selectedFolderInfo.textContent = 'No folder selected';
-  selectedFolderInfo.classList.add('text-gray-500');
-  selectedFolderInfo.classList.remove('text-indigo-300');
-  btnConfirmFolder.disabled = true;
+ selectedFolderInfo.textContent = 'No folder selected';
+ selectedFolderInfo.classList.add('text-gray-500');
+ selectedFolderInfo.classList.remove('text-indigo-300');
+ btnConfirmFolder.disabled = true;
 }
 }
 
 btnConfirmFolder.addEventListener('click', () => {
 if (activeSelectedFolder) {
-  fetchFolderName(activeSelectedFolder.id); // This will resolve the path and update the UI
-  closeFolderModal();
+ fetchFolderName(activeSelectedFolder.id); // This will resolve the path and update the UI
+ closeFolderModal();
 }
 });
 
 
 // --- GITHUB API HELPER: Safely extract error messages ---
 async function extractGitHubError(res, fallbackMsg) {
- let errMsg = res.statusText;
- try {
-   const errData = await res.json();
-   if (errData.message) errMsg = errData.message;
- } catch(e) {}
- return new Error(`${fallbackMsg}: ${errMsg}`);
+let errMsg = res.statusText;
+try {
+  const errData = await res.json();
+  if (errData.message) errMsg = errData.message;
+} catch(e) {}
+return new Error(`${fallbackMsg}: ${errMsg}`);
 }
 
 // --- GITHUB API LOGIC ---
 async function fetchRepos() {
- const token = tokenInput.value.trim();
- if (!token) return;
- try {
-   const loadingHtml = '<option value="">Fetching repositories...</option>';
-   repoSelect.innerHTML = loadingHtml;
-   promoteSource.innerHTML = loadingHtml;
-   promoteTarget.innerHTML = loadingHtml;
+const token = tokenInput.value.trim();
+if (!token) return;
+try {
+  const loadingHtml = '<option value="">Fetching repositories...</option>';
+  repoSelect.innerHTML = loadingHtml;
+  promoteSource.innerHTML = loadingHtml;
+  promoteTarget.innerHTML = loadingHtml;
 
-   const res = await fetch('https://api.github.com/user/repos?per_page=100&sort=updated', {
-       headers: { "Authorization": `Bearer ${token}` }
-   });
-   if (!res.ok) throw new Error("Invalid token");
-   
-   const repos = await res.json();
-   
-   // Filter out the strictly protected Fail-Safe-Code-Updater repository
-   const filteredRepos = repos.filter(r => !r.full_name.includes('Fail-Safe-Code-Updater'));
+  const res = await fetch('https://api.github.com/user/repos?per_page=100&sort=updated', {
+      headers: { "Authorization": `Bearer ${token}` }
+  });
+  if (!res.ok) throw new Error("Invalid token");
+  
+  const repos = await res.json();
+  
+  // Filter out the strictly protected Fail-Safe-Code-Updater repository
+  const filteredRepos = repos.filter(r => !r.full_name.includes('Fail-Safe-Code-Updater'));
 
-   if (filteredRepos.length === 0) {
-       const noReposHtml = '<option value="">No repositories found</option>';
-       repoSelect.innerHTML = noReposHtml;
-       promoteSource.innerHTML = noReposHtml;
-       promoteTarget.innerHTML = noReposHtml;
-       return;
-   }
+  if (filteredRepos.length === 0) {
+      const noReposHtml = '<option value="">No repositories found</option>';
+      repoSelect.innerHTML = noReposHtml;
+      promoteSource.innerHTML = noReposHtml;
+      promoteTarget.innerHTML = noReposHtml;
+      return;
+  }
 
-   // Grouping repos by account name (owner.login)
-   const grouped = {};
-   filteredRepos.forEach(r => {
-       const owner = r.owner.login;
-       if (!grouped[owner]) grouped[owner] = [];
-       grouped[owner].push(r);
-   });
-   
-   let optionsHtml = '<option value="">Select a repository...</option>';
-   Object.keys(grouped).sort((a, b) => a.localeCompare(b)).forEach(owner => {
-       optionsHtml += `<optgroup label="${owner}">`;
-       // Sort alphanumerically ascending by short name
-       grouped[owner].sort((a, b) => a.name.localeCompare(b.name)).forEach(r => {
-           optionsHtml += `<option value="${r.full_name}">${r.name}</option>`;
-       });
-       optionsHtml += `</optgroup>`;
-   });
+  // Grouping repos by account name (owner.login)
+  const grouped = {};
+  filteredRepos.forEach(r => {
+      const owner = r.owner.login;
+      if (!grouped[owner]) grouped[owner] = [];
+      grouped[owner].push(r);
+  });
+  
+  let optionsHtml = '<option value="">Select a repository...</option>';
+  Object.keys(grouped).sort((a, b) => a.localeCompare(b)).forEach(owner => {
+      optionsHtml += `<optgroup label="${owner}">`;
+      // Sort alphanumerically ascending by short name
+      grouped[owner].sort((a, b) => a.name.localeCompare(b.name)).forEach(r => {
+          optionsHtml += `<option value="${r.full_name}">${r.name}</option>`;
+      });
+      optionsHtml += `</optgroup>`;
+  });
 
-   repoSelect.innerHTML = optionsHtml;
-   promoteSource.innerHTML = optionsHtml;
-   promoteTarget.innerHTML = optionsHtml;
+  repoSelect.innerHTML = optionsHtml;
+  promoteSource.innerHTML = optionsHtml;
+  promoteTarget.innerHTML = optionsHtml;
 
-   // Restore saved selections
-   const savedRepo = localStorage.getItem('acm_gh_repo');
-   if (savedRepo && [...repoSelect.options].some(o => o.value === savedRepo)) {
-       repoSelect.value = savedRepo;
-   } else {
-       localStorage.setItem('acm_gh_repo', repoSelect.value);
-   }
+  // Restore saved selections
+  const savedRepo = localStorage.getItem('acm_gh_repo');
+  if (savedRepo && [...repoSelect.options].some(o => o.value === savedRepo)) {
+      repoSelect.value = savedRepo;
+  } else {
+      localStorage.setItem('acm_gh_repo', repoSelect.value);
+  }
 
-   const savedSource = localStorage.getItem('acm_promote_source');
-   if (savedSource && [...promoteSource.options].some(o => o.value === savedSource)) {
-       promoteSource.value = savedSource;
-   }
+  const savedSource = localStorage.getItem('acm_promote_source');
+  if (savedSource && [...promoteSource.options].some(o => o.value === savedSource)) {
+      promoteSource.value = savedSource;
+  }
 
-   const savedTarget = localStorage.getItem('acm_promote_target');
-   if (savedTarget && [...promoteTarget.options].some(o => o.value === savedTarget)) {
-       promoteTarget.value = savedTarget;
-   }
-   
-   // Check GitHub pages for the currently selected repo
-   if(repoSelect.value) checkGitHubPages(repoSelect.value, token, repoPagesLink);
-   if(promoteTarget.value) checkGitHubPages(promoteTarget.value, token, promoteTargetPagesLink);
+  const savedTarget = localStorage.getItem('acm_promote_target');
+  if (savedTarget && [...promoteTarget.options].some(o => o.value === savedTarget)) {
+      promoteTarget.value = savedTarget;
+  }
+  
+  // Check GitHub pages for the currently selected repo
+  if(repoSelect.value) checkGitHubPages(repoSelect.value, token, repoPagesLink);
+  if(promoteTarget.value) checkGitHubPages(promoteTarget.value, token, promoteTargetPagesLink);
 
- } catch (e) {
-   const errHtml = '<option value="">Failed to load repos (Check token)</option>';
-   repoSelect.innerHTML = errHtml;
-   promoteSource.innerHTML = errHtml;
-   promoteTarget.innerHTML = errHtml;
-   repoPagesLink.classList.add('hidden');
-   promoteTargetPagesLink.classList.add('hidden');
- }
+} catch (e) {
+  const errHtml = '<option value="">Failed to load repos (Check token)</option>';
+  repoSelect.innerHTML = errHtml;
+  promoteSource.innerHTML = errHtml;
+  promoteTarget.innerHTML = errHtml;
+  repoPagesLink.classList.add('hidden');
+  promoteTargetPagesLink.classList.add('hidden');
+}
 }
 
 async function fetchAllRepoFiles(repo, branch, token) {
- const headers = { "Authorization": `Bearer ${token}` };
- const treeRes = await fetch(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`, { headers });
- if (!treeRes.ok) throw await extractGitHubError(treeRes, `GitHub API Error: Could not fetch tree for branch '${branch}'`);
+const headers = { "Authorization": `Bearer ${token}` };
+const treeRes = await fetch(`https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`, { headers });
+if (!treeRes.ok) throw await extractGitHubError(treeRes, `GitHub API Error: Could not fetch tree for branch '${branch}'`);
 
- const treeData = await treeRes.json();
+const treeData = await treeRes.json();
 
- // Rigorous filter: Skip blobs that are non-text / binary (images, fonts, zips, media)
- const fileNodes = treeData.tree.filter(item => {
-   if (item.type !== 'blob') return false;
-   if (item.path.startsWith('updater/')) return false;
-   
-   const imageAndBinaryRegex = /\.(png|jpe?g|gif|svg|ico|webp|pdf|zip|tar|gz|mp3|mp4|mov|avi|ttf|woff|woff2|eot|bin|exe|dll|psd|ai|sketch|wav|ogg)$/i;
-   if (item.path.match(imageAndBinaryRegex)) return false;
-   
-   return true;
- });
+// Rigorous filter: Skip blobs that are non-text / binary (images, fonts, zips, media)
+const fileNodes = treeData.tree.filter(item => {
+  if (item.type !== 'blob') return false;
+  if (item.path.startsWith('updater/')) return false;
+  
+  const imageAndBinaryRegex = /\.(png|jpe?g|gif|svg|ico|webp|pdf|zip|tar|gz|mp3|mp4|mov|avi|ttf|woff|woff2|eot|bin|exe|dll|psd|ai|sketch|wav|ogg)$/i;
+  if (item.path.match(imageAndBinaryRegex)) return false;
+  
+  return true;
+});
 
- let compiledFiles = [];
- const batchSize = 10; 
+let compiledFiles = [];
+const batchSize = 10; 
 
- for (let i = 0; i < fileNodes.length; i += batchSize) {
-   const batch = fileNodes.slice(i, i + batchSize);
-   const promises = batch.map(async file => {
-       const contentRes = await fetch(`https://api.github.com/repos/${repo}/git/blobs/${file.sha}`, {
-           headers: { ...headers, "Accept": "application/vnd.github.v3.raw" }
-       });
-       if (!contentRes.ok) throw await extractGitHubError(contentRes, `Failed to fetch raw blob for ${file.path}`);
-       return { path: file.path, content: await contentRes.text() };
-   });
-   compiledFiles.push(...(await Promise.all(promises)));
- }
+for (let i = 0; i < fileNodes.length; i += batchSize) {
+  const batch = fileNodes.slice(i, i + batchSize);
+  const promises = batch.map(async file => {
+      const contentRes = await fetch(`https://api.github.com/repos/${repo}/git/blobs/${file.sha}`, {
+          headers: { ...headers, "Accept": "application/vnd.github.v3.raw" }
+      });
+      if (!contentRes.ok) throw await extractGitHubError(contentRes, `Failed to fetch raw blob for ${file.path}`);
+      return { path: file.path, content: await contentRes.text() };
+  });
+  compiledFiles.push(...(await Promise.all(promises)));
+}
 
- return { fileNodes, compiledFiles };
+return { fileNodes, compiledFiles };
 }
 
 async function pushCommitToGitHub(repo, branch, token, files, commitMessage) {
- const headers = { 
-   "Authorization": `Bearer ${token}`, 
-   "Accept": "application/vnd.github.v3+json",
-   "X-GitHub-Api-Version": "2022-11-28",
-   "Content-Type": "application/json"
- };
- const baseUrl = `https://api.github.com/repos/${repo}`;
+const headers = { 
+  "Authorization": `Bearer ${token}`, 
+  "Accept": "application/vnd.github.v3+json",
+  "X-GitHub-Api-Version": "2022-11-28",
+  "Content-Type": "application/json"
+};
+const baseUrl = `https://api.github.com/repos/${repo}`;
 
- // 1. Get current branch reference
- let res = await fetch(`${baseUrl}/git/refs/heads/${branch}`, { headers });
- if (!res.ok) throw await extractGitHubError(res, `GitHub API Error: Could not find branch '${branch}'`);
- const commitSha = (await res.json()).object.sha;
+// 1. Get current branch reference
+let res = await fetch(`${baseUrl}/git/refs/heads/${branch}`, { headers });
+if (!res.ok) throw await extractGitHubError(res, `GitHub API Error: Could not find branch '${branch}'`);
+const commitSha = (await res.json()).object.sha;
 
- // 2. Get the base tree
- res = await fetch(`${baseUrl}/git/commits/${commitSha}`, { headers });
- if (!res.ok) throw await extractGitHubError(res, `GitHub API Error: Failed to find base commit`);
- const baseTreeSha = (await res.json()).tree.sha;
+// 2. Get the base tree
+res = await fetch(`${baseUrl}/git/commits/${commitSha}`, { headers });
+if (!res.ok) throw await extractGitHubError(res, `GitHub API Error: Failed to find base commit`);
+const baseTreeSha = (await res.json()).tree.sha;
 
- // 3. Create standalone blobs sequentially to prevent payload size limits / WAF Blocks
- const treeNodes = [];
- for (let i = 0; i < files.length; i++) {
-   const f = files[i];
-   setStatus(`Uploading file ${i + 1} of ${files.length} as Blob: ${f.path}...`, 'info');
-   
-   // Handle both text (utf-8) and binary (base64) uploads based on 'encoding' flag
-   const payload = { 
-       content: f.content, 
-       encoding: f.encoding || "utf-8" 
-   };
+// 3. Create standalone blobs sequentially to prevent payload size limits / WAF Blocks
+const treeNodes = [];
+for (let i = 0; i < files.length; i++) {
+  const f = files[i];
+  setStatus(`Uploading file ${i + 1} of ${files.length} as Blob: ${f.path}...`, 'info');
+  
+  // Handle both text (utf-8) and binary (base64) uploads based on 'encoding' flag
+  const payload = { 
+      content: f.content, 
+      encoding: f.encoding || "utf-8" 
+  };
 
-   const blobRes = await fetch(`${baseUrl}/git/blobs`, {
-       method: "POST", headers,
-       body: JSON.stringify(payload)
-   });
-   
-   if (!blobRes.ok) throw await extractGitHubError(blobRes, `GitHub Blob Creation Failed (${f.path})`);
-   
-   const blobData = await blobRes.json();
-   treeNodes.push({ path: f.path, mode: "100644", type: "blob", sha: blobData.sha });
- }
+  const blobRes = await fetch(`${baseUrl}/git/blobs`, {
+      method: "POST", headers,
+      body: JSON.stringify(payload)
+  });
+  
+  if (!blobRes.ok) throw await extractGitHubError(blobRes, `GitHub Blob Creation Failed (${f.path})`);
+  
+  const blobData = await blobRes.json();
+  treeNodes.push({ path: f.path, mode: "100644", type: "blob", sha: blobData.sha });
+}
 
- // 4. Create new Git Tree using the collected blob SHAs
- setStatus("Constructing new Git Tree via SHAs...", 'info');
- res = await fetch(`${baseUrl}/git/trees`, {
-   method: "POST", headers,
-   body: JSON.stringify({ base_tree: baseTreeSha, tree: treeNodes })
- });
- if (!res.ok) throw await extractGitHubError(res, "GitHub API Error: Failed to construct Git Tree. Ensure token scope is correct.");
- const newTreeSha = (await res.json()).sha;
+// 4. Create new Git Tree using the collected blob SHAs
+setStatus("Constructing new Git Tree via SHAs...", 'info');
+res = await fetch(`${baseUrl}/git/trees`, {
+  method: "POST", headers,
+  body: JSON.stringify({ base_tree: baseTreeSha, tree: treeNodes })
+});
+if (!res.ok) throw await extractGitHubError(res, "GitHub API Error: Failed to construct Git Tree. Ensure token scope is correct.");
+const newTreeSha = (await res.json()).sha;
 
- // 5. Create new Commit
- setStatus("Creating Commit...", 'info');
- res = await fetch(`${baseUrl}/git/commits`, {
-   method: "POST", headers,
-   body: JSON.stringify({ message: commitMessage, tree: newTreeSha, parents: [commitSha] })
- });
- if (!res.ok) throw await extractGitHubError(res, "GitHub API Error: Failed to create Commit");
- const newCommitSha = (await res.json()).sha;
+// 5. Create new Commit
+setStatus("Creating Commit...", 'info');
+res = await fetch(`${baseUrl}/git/commits`, {
+  method: "POST", headers,
+  body: JSON.stringify({ message: commitMessage, tree: newTreeSha, parents: [commitSha] })
+});
+if (!res.ok) throw await extractGitHubError(res, "GitHub API Error: Failed to create Commit");
+const newCommitSha = (await res.json()).sha;
 
- // 6. Fast-forward the branch
- setStatus("Fast-forwarding branch reference...", 'info');
- res = await fetch(`${baseUrl}/git/refs/heads/${branch}`, {
-   method: "PATCH", headers, body: JSON.stringify({ sha: newCommitSha })
- });
- if (!res.ok) throw await extractGitHubError(res, "GitHub API Error: Failed to update branch reference");
+// 6. Fast-forward the branch
+setStatus("Fast-forwarding branch reference...", 'info');
+res = await fetch(`${baseUrl}/git/refs/heads/${branch}`, {
+  method: "PATCH", headers, body: JSON.stringify({ sha: newCommitSha })
+});
+if (!res.ok) throw await extractGitHubError(res, "GitHub API Error: Failed to update branch reference");
 
- return newCommitSha;
+return newCommitSha;
 }
 
 async function pollWorkflowStatus(repo, token, commitSha, backupUrl = null) {
- const headers = { 
-   "Authorization": `Bearer ${token}`, 
-   "Accept": "application/vnd.github.v3+json"
- };
- const baseUrl = `https://api.github.com/repos/${repo}/actions/runs?head_sha=${commitSha}`;
+const headers = { 
+  "Authorization": `Bearer ${token}`, 
+  "Accept": "application/vnd.github.v3+json"
+};
+const baseUrl = `https://api.github.com/repos/${repo}/actions/runs?head_sha=${commitSha}`;
 
- let attempts = 0;
- const maxAttempts = 60; // Up to 5 minutes
- let runId = null;
+let attempts = 0;
+const maxAttempts = 60; // Up to 5 minutes
+let runId = null;
 
- const linkHtml = backupUrl ? `<div class="mt-3 flex justify-center items-center">${generateBackupLinkHtml(backupUrl, "View Linked Backup Document &nearr;")}</div>` : '';
+const linkHtml = backupUrl ? `<div class="mt-3 flex justify-center items-center">${generateBackupLinkHtml(backupUrl, "View Linked Backup Document &nearr;")}</div>` : '';
 
- setStatus(`GitHub Action triggers starting... Waiting for workflow to queue.${linkHtml}`, 'info');
+setStatus(`GitHub Action triggers starting... Waiting for workflow to queue.${linkHtml}`, 'info');
 
- while (attempts < maxAttempts) {
-   attempts++;
-   await new Promise(r => setTimeout(r, 5000));
-   
-   try {
-       const res = await fetch(baseUrl, { headers });
-       if (!res.ok) continue;
-       const data = await res.json();
-       
-       if (data.total_count > 0) {
-           const run = data.workflow_runs[0];
-           runId = run.id;
-           
-           if (run.status === 'completed') {
-               if (run.conclusion === 'success') {
-                   setStatus(`🎉 Deployment successful! GitHub Action completed successfully.${linkHtml}`, 'success');
-               } else {
-                   setStatus(`⚠️ Deployment concluded with errors (Status: ${run.conclusion}). Please check GitHub Actions.${linkHtml}`, 'error');
-               }
-               return;
-           } else {
-               setStatus(`⏳ GitHub Action in progress (State: ${run.status})...${linkHtml}`, 'info');
-           }
-       } else {
-           if (attempts > 4 && !runId) {
-               setStatus(`✅ Push successful! (No GitHub Actions workflow detected for this commit).${linkHtml}`, 'success');
-               return;
-           }
-       }
-   } catch (e) {
-       console.warn("Polling error silently ignored:", e);
-   }
- }
+while (attempts < maxAttempts) {
+  attempts++;
+  await new Promise(r => setTimeout(r, 5000));
+  
+  try {
+      const res = await fetch(baseUrl, { headers });
+      if (!res.ok) continue;
+      const data = await res.json();
+      
+      if (data.total_count > 0) {
+          const run = data.workflow_runs[0];
+          runId = run.id;
+          
+          if (run.status === 'completed') {
+              if (run.conclusion === 'success') {
+                  setStatus(`🎉 Deployment successful! GitHub Action completed successfully.${linkHtml}`, 'success');
+              } else {
+                  setStatus(`⚠️ Deployment concluded with errors (Status: ${run.conclusion}). Please check GitHub Actions.${linkHtml}`, 'error');
+              }
+              return;
+          } else {
+              setStatus(`⏳ GitHub Action in progress (State: ${run.status})...${linkHtml}`, 'info');
+          }
+      } else {
+          if (attempts > 4 && !runId) {
+              setStatus(`✅ Push successful! (No GitHub Actions workflow detected for this commit).${linkHtml}`, 'success');
+              return;
+          }
+      }
+  } catch (e) {
+      console.warn("Polling error silently ignored:", e);
+  }
+}
 
- setStatus(`✅ Push successful! (Timed out waiting for GitHub Actions deployment feedback).${linkHtml}`, 'success');
+setStatus(`✅ Push successful! (Timed out waiting for GitHub Actions deployment feedback).${linkHtml}`, 'success');
 }
 
 // --- RESILIENT PARSER HELPER ---
 function parsePayloadContent(rawContent) {
- const files = [];
- // Updated to support new custom boundary formats from AI
- const fileRegex = /@@@===FILE_PATH:\s*(.*?)\s*===@@@[\s\S]*?@@@===CODE_START===@@@\s*([\s\S]*?)\s*@@@===CODE_END===@@@/gi;
- let match;
+const files = [];
+// Updated to support new custom boundary formats from AI
+const fileRegex = /@@@===FILE_PATH:\s*(.*?)\s*===@@@[\s\S]*?@@@===CODE_START===@@@\s*([\s\S]*?)\s*@@@===CODE_END===@@@/gi;
+let match;
 
- while ((match = fileRegex.exec(rawContent)) !== null) {
-   
-   // 1. Sanitize the Path
-   let cleanPath = match[1].replace(/[\r\n]+/g, '').trim();
-   
-   // REMOVE leading dots and slashes like "./" or "/" but PRESERVE ".github"
-   cleanPath = cleanPath.replace(/^(\.\/|\/)+/, ''); 
-   cleanPath = cleanPath.replace(/\\/g, '/');
+while ((match = fileRegex.exec(rawContent)) !== null) {
+  
+  // 1. Sanitize the Path
+  let cleanPath = match[1].replace(/[\r\n]+/g, '').trim();
+  
+  // REMOVE leading dots and slashes like "./" or "/" but PRESERVE ".github"
+  cleanPath = cleanPath.replace(/^(\.\/|\/)+/, ''); 
+  cleanPath = cleanPath.replace(/\\/g, '/');
 
-   // CRITICAL FIX: Skip GitHub Action Workflow files.
-   // If your token lacks the specific 'workflow' scope, attempting to push
-   // a tree containing a .github/ file instantly throws a 404 Not Found error.
-   // Skipping it here ensures Rollbacks succeed seamlessly using the existing workflow.
-   if (cleanPath.toLowerCase().startsWith('.github/')) {
-       console.log(`Skipping workflow file to prevent token scope 404 crashes: ${cleanPath}`);
-       continue;
-   }
+  // CRITICAL FIX: Skip GitHub Action Workflow files.
+  // If your token lacks the specific 'workflow' scope, attempting to push
+  // a tree containing a .github/ file instantly throws a 404 Not Found error.
+  // Skipping it here ensures Rollbacks succeed seamlessly using the existing workflow.
+  if (cleanPath.toLowerCase().startsWith('.github/')) {
+      console.log(`Skipping workflow file to prevent token scope 404 crashes: ${cleanPath}`);
+      continue;
+  }
 
-   // 2. Format & Sanitize the Code Content
-   let cleanContent = match[2].trim();
-   
-   // FIX FOR SINGLE-LINE GITHUB UI ISSUE:
-   // Google Docs API (getText) natively returns '\r' as line breaks.
-   // GitHub strictly requires '\n' for proper multiline code rendering.
-   cleanContent = cleanContent.replace(/\r\n|\r/g, '\n');
+  // 2. Format & Sanitize the Code Content
+  let cleanContent = match[2].trim();
+  
+  // FIX FOR SINGLE-LINE GITHUB UI ISSUE:
+  // Google Docs API (getText) natively returns '\r' as line breaks.
+  // GitHub strictly requires '\n' for proper multiline code rendering.
+  cleanContent = cleanContent.replace(/\r\n|\r/g, '\n');
 
-   if (cleanPath) {
-       files.push({ path: cleanPath, content: cleanContent });
-   }
- }
- return files;
+  if (cleanPath) {
+      files.push({ path: cleanPath, content: cleanContent });
+  }
+}
+return files;
 }
 
 // --- CORE ACTIONS ---
 
 // 1. UPDATE PUSH FLOW
 document.getElementById('updater-form').addEventListener('submit', async (e) => {
- e.preventDefault();
+e.preventDefault();
 
- const payloadInput = document.getElementById('gh-payload').value.trim();
- const btnSpinner = document.getElementById('btn-spinner');
- const submitBtn = document.getElementById('submit-btn');
+const payloadInput = document.getElementById('gh-payload').value.trim();
+const btnSpinner = document.getElementById('btn-spinner');
+const submitBtn = document.getElementById('submit-btn');
 
- try {
-   const config = getConfig();
-   const files = parsePayloadContent(payloadInput);
-   if (files.length === 0) throw new Error("No valid files parsed. Ensure you copied the exact format.");
+try {
+  const config = getConfig();
+  const files = parsePayloadContent(payloadInput);
+  if (files.length === 0) throw new Error("No valid files parsed. Ensure you copied the exact format.");
 
-   submitBtn.disabled = true;
-   btnSpinner.classList.remove('hidden');
-   
-   let backupUrl = null;
+  submitBtn.disabled = true;
+  btnSpinner.classList.remove('hidden');
+  
+  let backupUrl = null;
 
-   if (!config.skipBackup) {
-       setStatus("Fetching full repository tree to create a Drive backup...", "info");
-       updateBtnText.textContent = "Step 1/2: Backing up repo...";
-       
-       const { fileNodes, compiledFiles } = await fetchAllRepoFiles(config.repo, config.branch, config.token);
-       const hierarchy = fileNodes.map(f => f.path).join('\n');
-       const repoNameStr = config.repo.split('/').pop() || config.repo;
-       
-       const backupData = await gasCall(config.gasUrl, { action: 'backupCode', folderId: config.folderId, hierarchy, files: compiledFiles, repoName: repoNameStr });
-       backupUrl = backupData.url;
+  if (!config.skipBackup) {
+      setStatus("Fetching full repository tree to create a Drive backup...", "info");
+      updateBtnText.textContent = "Step 1/2: Backing up repo...";
+      
+      const { fileNodes, compiledFiles } = await fetchAllRepoFiles(config.repo, config.branch, config.token);
+      const hierarchy = fileNodes.map(f => f.path).join('\n');
+      const repoNameStr = config.repo.split('/').pop() || config.repo;
+      
+      const backupData = await gasCall(config.gasUrl, { action: 'backupCode', folderId: config.folderId, hierarchy, files: compiledFiles, repoName: repoNameStr });
+      backupUrl = backupData.url;
 
-       setStatus(`Backup successful! Pushing new code to GitHub...`, "info");
-       updateBtnText.textContent = "Step 2/2: Pushing Update...";
-   } else {
-       setStatus("Skipping Backup. Pushing new code directly to GitHub...", "info");
-       updateBtnText.textContent = "Pushing Update...";
-   }
+      setStatus(`Backup successful! Pushing new code to GitHub...`, "info");
+      updateBtnText.textContent = "Step 2/2: Pushing Update...";
+  } else {
+      setStatus("Skipping Backup. Pushing new code directly to GitHub...", "info");
+      updateBtnText.textContent = "Pushing Update...";
+  }
 
-   const newCommitSha = await pushCommitToGitHub(config.repo, config.branch, config.token, files, `Automated emergency update via ${APP_NAME}`);
+  const newCommitSha = await pushCommitToGitHub(config.repo, config.branch, config.token, files, `Automated emergency update via ${APP_NAME}`);
 
-   // UI Reset
-   document.getElementById('gh-payload').value = '';
-   submitBtn.disabled = false;
-   btnSpinner.classList.add('hidden');
-   toggleBtnText();
+  // UI Reset
+  document.getElementById('gh-payload').value = '';
+  submitBtn.disabled = false;
+  btnSpinner.classList.add('hidden');
+  toggleBtnText();
 
-   pollWorkflowStatus(config.repo, config.token, newCommitSha, backupUrl);
+  pollWorkflowStatus(config.repo, config.token, newCommitSha, backupUrl);
 
- } catch (err) {
-   setStatus(err.message, "error");
-   submitBtn.disabled = false;
-   btnSpinner.classList.add('hidden');
-   toggleBtnText();
- }
+} catch (err) {
+  setStatus(err.message, "error");
+  submitBtn.disabled = false;
+  btnSpinner.classList.add('hidden');
+  toggleBtnText();
+}
 });
 
 // 2. MANUAL BACKUP FLOW
 document.getElementById('manual-backup-btn').addEventListener('click', async () => {
- const btn = document.getElementById('manual-backup-btn');
- const btnText = document.getElementById('manual-backup-btn-text');
- const btnSpinner = document.getElementById('manual-backup-btn-spinner');
+const btn = document.getElementById('manual-backup-btn');
+const btnText = document.getElementById('manual-backup-btn-text');
+const btnSpinner = document.getElementById('manual-backup-btn-spinner');
 
- try {
-   const config = getConfig();
-   btn.disabled = true;
-   btnSpinner.classList.remove('hidden');
-   btnText.textContent = "Backing up repository...";
-   setStatus("Fetching full repository tree to create a manual Drive backup...", "info");
-   
-   const { fileNodes, compiledFiles } = await fetchAllRepoFiles(config.repo, config.branch, config.token);
-   const hierarchy = fileNodes.map(f => f.path).join('\n');
-   const repoNameStr = config.repo.split('/').pop() || config.repo;
-   
-   const backupData = await gasCall(config.gasUrl, { action: 'backupCode', folderId: config.folderId, hierarchy, files: compiledFiles, repoName: repoNameStr });
-   
-   setStatus(`Manual Backup successful! ${generateBackupLinkHtml(backupData.url)}`, "success");
-   
- } catch(err) {
-   setStatus(err.message, "error");
- } finally {
-   btn.disabled = false;
-   btnSpinner.classList.add('hidden');
-   btnText.textContent = "Create Manual Backup";
- }
+try {
+  const config = getConfig();
+  btn.disabled = true;
+  btnSpinner.classList.remove('hidden');
+  btnText.textContent = "Backing up repository...";
+  setStatus("Fetching full repository tree to create a manual Drive backup...", "info");
+  
+  const { fileNodes, compiledFiles } = await fetchAllRepoFiles(config.repo, config.branch, config.token);
+  const hierarchy = fileNodes.map(f => f.path).join('\n');
+  const repoNameStr = config.repo.split('/').pop() || config.repo;
+  
+  const backupData = await gasCall(config.gasUrl, { action: 'backupCode', folderId: config.folderId, hierarchy, files: compiledFiles, repoName: repoNameStr });
+  
+  setStatus(`Manual Backup successful! ${generateBackupLinkHtml(backupData.url)}`, "success");
+  
+} catch(err) {
+  setStatus(err.message, "error");
+} finally {
+  btn.disabled = false;
+  btnSpinner.classList.add('hidden');
+  btnText.textContent = "Create Manual Backup";
+}
 });
 
 // 3. LOAD BACKUPS FLOW
 document.getElementById('load-backups-btn').addEventListener('click', async () => {
- const btn = document.getElementById('load-backups-btn');
- const btnText = document.getElementById('load-btn-text');
- const btnSpinner = document.getElementById('load-btn-spinner');
- const rbContainer = document.getElementById('rollback-container');
- const select = document.getElementById('rollback-select');
+const btn = document.getElementById('load-backups-btn');
+const btnText = document.getElementById('load-btn-text');
+const btnSpinner = document.getElementById('load-btn-spinner');
+const rbContainer = document.getElementById('rollback-container');
+const select = document.getElementById('rollback-select');
 
- try {
-   const config = getConfig();
-   btn.disabled = true;
-   btnSpinner.classList.remove('hidden');
-   btnText.textContent = "Fetching Backups...";
-   setStatus("Scanning Drive folder for backups...", "info");
+try {
+  const config = getConfig();
+  btn.disabled = true;
+  btnSpinner.classList.remove('hidden');
+  btnText.textContent = "Fetching Backups...";
+  setStatus("Scanning Drive folder for backups...", "info");
 
-   const data = await gasCall(config.gasUrl, { action: 'getBackups', folderId: config.folderId });
-   
-   if (!data.backups || data.backups.length === 0) {
-       throw new Error("No compatible backups found in the specified Drive folder.");
-   }
+  const data = await gasCall(config.gasUrl, { action: 'getBackups', folderId: config.folderId });
+  
+  if (!data.backups || data.backups.length === 0) {
+      throw new Error("No compatible backups found in the specified Drive folder.");
+  }
 
-   select.innerHTML = '';
-   data.backups.forEach(b => {
-       const dateStr = new Date(b.time).toLocaleString();
-       const option = document.createElement('option');
-       option.value = b.id;
-       option.textContent = `${dateStr} - ${b.name}`;
-       select.appendChild(option);
-   });
+  select.innerHTML = '';
+  data.backups.forEach(b => {
+      const dateStr = new Date(b.time).toLocaleString();
+      const option = document.createElement('option');
+      option.value = b.id;
+      option.textContent = `${dateStr} - ${b.name}`;
+      select.appendChild(select.firstChild); // Keep the newest at the top implicitly or directly append if sorted server-side
+      // The server already sorted them newest first, so we just append
+      select.appendChild(option);
+  });
 
-   rbContainer.classList.remove('hidden');
-   setStatus(`Loaded ${data.backups.length} backups. Select one and perform rollback.`, "success");
+  rbContainer.classList.remove('hidden');
+  setStatus(`Loaded ${data.backups.length} backups. Select one and perform rollback.`, "success");
 
- } catch(err) {
-   setStatus(err.message, "error");
- } finally {
-   btn.disabled = false;
-   btnSpinner.classList.add('hidden');
-   btnText.textContent = "Load Available Backups";
- }
+} catch(err) {
+  setStatus(err.message, "error");
+} finally {
+  btn.disabled = false;
+  btnSpinner.classList.add('hidden');
+  btnText.textContent = "Load Available Backups";
+}
 });
 
 // 4. EXECUTE ROLLBACK FLOW
 document.getElementById('rollback-btn').addEventListener('click', async () => {
- const btn = document.getElementById('rollback-btn');
- const btnText = document.getElementById('rb-btn-text');
- const btnSpinner = document.getElementById('rb-btn-spinner');
- const select = document.getElementById('rollback-select');
- const fileId = select.value;
+const btn = document.getElementById('rollback-btn');
+const btnText = document.getElementById('rb-btn-text');
+const btnSpinner = document.getElementById('rb-btn-spinner');
+const select = document.getElementById('rollback-select');
+const fileId = select.value;
 
- if (!confirm("Are you absolutely sure you want to rollback the repository to this specific version? This will push the backup contents over your current files.")) return;
+if (!confirm("Are you absolutely sure you want to rollback the repository to this specific version? This will push the backup contents over your current files.")) return;
 
- try {
-   const config = getConfig();
-   btn.disabled = true;
-   btnSpinner.classList.remove('hidden');
-   btnText.textContent = "Retrieving Document...";
-   setStatus("Fetching backup document contents from Google Drive...", "info");
+try {
+  const config = getConfig();
+  btn.disabled = true;
+  btnSpinner.classList.remove('hidden');
+  btnText.textContent = "Retrieving Document...";
+  setStatus("Fetching backup document contents from Google Drive...", "info");
 
-   const data = await gasCall(config.gasUrl, { action: 'getBackupContent', fileId });
-   
-   btnText.textContent = "Pushing Rollback...";
-   setStatus("Parsing document and executing rollback over GitHub API...", "info");
+  const data = await gasCall(config.gasUrl, { action: 'getBackupContent', fileId });
+  
+  btnText.textContent = "Pushing Rollback...";
+  setStatus("Parsing document and executing rollback over GitHub API...", "info");
 
-   const files = parsePayloadContent(data.content);
-   if (files.length === 0) throw new Error("Could not parse files from the backup document. Document may be malformed or empty.");
+  const files = parsePayloadContent(data.content);
+  if (files.length === 0) throw new Error("Could not parse files from the backup document. Document may be malformed or empty.");
 
-   const newCommitSha = await pushCommitToGitHub(config.repo, config.branch, config.token, files, `Emergency Repository Rollback via ${APP_NAME}`);
+  const newCommitSha = await pushCommitToGitHub(config.repo, config.branch, config.token, files, `Emergency Repository Rollback via ${APP_NAME}`);
 
-   document.getElementById('rollback-container').classList.add('hidden');
-   
-   btn.disabled = false;
-   btnSpinner.classList.add('hidden');
-   btnText.textContent = "Perform Rollback";
+  document.getElementById('rollback-container').classList.add('hidden');
+  
+  btn.disabled = false;
+  btnSpinner.classList.add('hidden');
+  btnText.textContent = "Perform Rollback";
 
-   pollWorkflowStatus(config.repo, config.token, newCommitSha);
+  pollWorkflowStatus(config.repo, config.token, newCommitSha);
 
- } catch(err) {
-   setStatus(err.message, "error");
-   btn.disabled = false;
-   btnSpinner.classList.add('hidden');
-   btnText.textContent = "Perform Rollback";
- }
+} catch(err) {
+  setStatus(err.message, "error");
+  btn.disabled = false;
+  btnSpinner.classList.add('hidden');
+  btnText.textContent = "Perform Rollback";
+}
 });
 
 // 5. ENVIRONMENT PROMOTION (CI/CD) FLOW
 promoteBtn.addEventListener('click', async () => {
-   const sourceRepo = promoteSource.value;
-   const targetRepo = promoteTarget.value;
-   const token = tokenInput.value.trim();
-   const branch = branchInput.value.trim();
-   
-   const folderInputVal = document.getElementById('gh-drive-folder').value.trim();
-   const storedFolderId = document.getElementById('gh-drive-folder').dataset.folderId;
-   const folderId = storedFolderId || extractFolderId(folderInputVal);
+  const sourceRepo = promoteSource.value;
+  const targetRepo = promoteTarget.value;
+  const token = tokenInput.value.trim();
+  const branch = branchInput.value.trim();
+  
+  const folderInputVal = document.getElementById('gh-drive-folder').value.trim();
+  const storedFolderId = document.getElementById('gh-drive-folder').dataset.folderId;
+  const folderId = storedFolderId || extractFolderId(folderInputVal);
 
-   if (!sourceRepo || !targetRepo) return setStatus("Source and Target repositories must be selected.", "error");
-   if (sourceRepo === targetRepo) return setStatus("Source and Target repositories cannot be the same.", "error");
-   if (!token || !folderId) return setStatus("Token and Google Drive Folder are required in Step 1.", "error");
+  if (!sourceRepo || !targetRepo) return setStatus("Source and Target repositories must be selected.", "error");
+  if (sourceRepo === targetRepo) return setStatus("Source and Target repositories cannot be the same.", "error");
+  if (!token || !folderId) return setStatus("Token and Google Drive Folder are required in Step 1.", "error");
 
-   const btnText = document.getElementById('promote-btn-text');
-   const btnSpinner = document.getElementById('promote-btn-spinner');
-   
-   try {
-       promoteBtn.disabled = true;
-       btnSpinner.classList.remove('hidden');
-       
-       // 1. Fetch Source
-       setStatus(`Fetching source files from ${sourceRepo}...`, 'info');
-       btnText.textContent = "Step 1/3: Fetching Source...";
-       const { compiledFiles: sourceFiles } = await fetchAllRepoFiles(sourceRepo, branch, token);
-       
-       // 2. Filter out .github/ and user exclusions
-       const excludedList = document.getElementById('promote-exclude').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-       const filteredSourceFiles = sourceFiles.filter(f => {
-           const lowerPath = f.path.toLowerCase();
-           // Strictly protect deployment pipelines and tokens
-           if (lowerPath.startsWith('.github/')) return false; 
-           // Apply user defined exclusions
-           if (excludedList.includes(lowerPath)) return false; 
-           return true;
-       });
+  const btnText = document.getElementById('promote-btn-text');
+  const btnSpinner = document.getElementById('promote-btn-spinner');
+  
+  try {
+      promoteBtn.disabled = true;
+      btnSpinner.classList.remove('hidden');
+      
+      // 1. Fetch Source
+      setStatus(`Fetching source files from ${sourceRepo}...`, 'info');
+      btnText.textContent = "Step 1/3: Fetching Source...";
+      const { compiledFiles: sourceFiles } = await fetchAllRepoFiles(sourceRepo, branch, token);
+      
+      // 2. Filter out .github/ and user exclusions
+      const excludedList = document.getElementById('promote-exclude').value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+      const filteredSourceFiles = sourceFiles.filter(f => {
+          const lowerPath = f.path.toLowerCase();
+          // Strictly protect deployment pipelines and tokens
+          if (lowerPath.startsWith('.github/')) return false; 
+          // Apply user defined exclusions
+          if (excludedList.includes(lowerPath)) return false; 
+          return true;
+      });
 
-       if (filteredSourceFiles.length === 0) throw new Error("No files left to promote after applying exclusions.");
+      if (filteredSourceFiles.length === 0) throw new Error("No files left to promote after applying exclusions.");
 
-       // 3. Backup Target for safety
-       setStatus(`Fetching target files to backup ${targetRepo}...`, 'info');
-       btnText.textContent = "Step 2/3: Backing up Target...";
-       const { fileNodes: targetNodes, compiledFiles: targetFiles } = await fetchAllRepoFiles(targetRepo, branch, token);
-       const hierarchy = targetNodes.map(f => f.path).join('\n');
-       const targetRepoNameStr = targetRepo.split('/').pop();
-       
-       setStatus(`Transmitting ${targetRepo} backup to Google Drive...`, 'info');
-       const backupData = await gasCall(GAS_WEB_APP_URL, { 
-           action: 'backupCode', 
-           folderId, 
-           hierarchy, 
-           files: targetFiles, 
-           repoName: targetRepoNameStr 
-       });
+      // 3. Backup Target for safety
+      setStatus(`Fetching target files to backup ${targetRepo}...`, 'info');
+      btnText.textContent = "Step 2/3: Backing up Target...";
+      const { fileNodes: targetNodes, compiledFiles: targetFiles } = await fetchAllRepoFiles(targetRepo, branch, token);
+      const hierarchy = targetNodes.map(f => f.path).join('\n');
+      const targetRepoNameStr = targetRepo.split('/').pop();
+      
+      setStatus(`Transmitting ${targetRepo} backup to Google Drive...`, 'info');
+      const backupData = await gasCall(GAS_WEB_APP_URL, { 
+          action: 'backupCode', 
+          folderId, 
+          hierarchy, 
+          files: targetFiles, 
+          repoName: targetRepoNameStr 
+      });
 
-       // 4. Push directly to Target
-       setStatus(`Target backup successful! Pushing promoted code to ${targetRepo}...`, 'info');
-       btnText.textContent = "Step 3/3: Pushing Update...";
-       const sourceRepoNameStr = sourceRepo.split('/').pop();
-       const newCommitSha = await pushCommitToGitHub(
-           targetRepo, 
-           branch, 
-           token, 
-           filteredSourceFiles, 
-           `Environment Promotion from ${sourceRepoNameStr}`
-       );
+      // 4. Push directly to Target
+      setStatus(`Target backup successful! Pushing promoted code to ${targetRepo}...`, 'info');
+      btnText.textContent = "Step 3/3: Pushing Update...";
+      const sourceRepoNameStr = sourceRepo.split('/').pop();
+      const newCommitSha = await pushCommitToGitHub(
+          targetRepo, 
+          branch, 
+          token, 
+          filteredSourceFiles, 
+          `Environment Promotion from ${sourceRepoNameStr}`
+      );
 
-       // 5. Monitor
-       pollWorkflowStatus(targetRepo, token, newCommitSha, backupData.url);
-       
-   } catch (err) {
-       setStatus(err.message, "error");
-   } finally {
-       promoteBtn.disabled = false;
-       btnSpinner.classList.add('hidden');
-       btnText.textContent = "Promote Code & Auto-Backup Target";
-   }
+      // 5. Monitor
+      pollWorkflowStatus(targetRepo, token, newCommitSha, backupData.url);
+      
+  } catch (err) {
+      setStatus(err.message, "error");
+  } finally {
+      promoteBtn.disabled = false;
+      btnSpinner.classList.add('hidden');
+      btnText.textContent = "Promote Code & Auto-Backup Target";
+  }
 });
 
 // 6. DEDICATED UPDATER BACKUP FLOW
 document.getElementById('updater-backup-btn').addEventListener('click', async () => {
- const btn = document.getElementById('updater-backup-btn');
- const btnText = document.getElementById('updater-backup-btn-text');
- const btnSpinner = document.getElementById('updater-backup-btn-spinner');
+const btn = document.getElementById('updater-backup-btn');
+const btnText = document.getElementById('updater-backup-btn-text');
+const btnSpinner = document.getElementById('updater-backup-btn-spinner');
 
- const token = document.getElementById('gh-token').value.trim();
- if (!token) {
-   setStatus("GitHub Fine-Grained Token is required to backup the repo. Please enter it in Step 1.", "error");
-   window.scrollTo({ top: 0, behavior: 'smooth' });
-   return;
- }
+const token = document.getElementById('gh-token').value.trim();
+if (!token) {
+  setStatus("GitHub Fine-Grained Token is required to backup the repo. Please enter it in Step 1.", "error");
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  return;
+}
 
- // Configuration for this specific system tool bypasses the general UI selectors (Loaded from backend/config.js)
- const targetRepo = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_REPO ? APP_CONFIG.TARGET_REPO : "weronedatabase-tech/Fail-Safe-Code-Updater";
- const targetFolderId = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_FOLDER_ID ? APP_CONFIG.TARGET_FOLDER_ID : "1u0irLS2iRZX9Tpx92uazdRukTemA3pLL";
- const targetBranch = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_BRANCH ? APP_CONFIG.TARGET_BRANCH : "main";
+// Configuration for this specific system tool bypasses the general UI selectors (Loaded from backend/config.js)
+const targetRepo = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_REPO ? APP_CONFIG.TARGET_REPO : "weronedatabase-tech/Fail-Safe-Code-Updater";
+const targetFolderId = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_FOLDER_ID ? APP_CONFIG.TARGET_FOLDER_ID : "1u0irLS2iRZX9Tpx92uazdRukTemA3pLL";
+const targetBranch = typeof APP_CONFIG !== 'undefined' && APP_CONFIG.TARGET_BRANCH ? APP_CONFIG.TARGET_BRANCH : "main";
 
- if (!targetRepo || !targetFolderId || !targetBranch) {
-   setStatus("System Maintenance configuration missing in config.js.", "error");
-   return;
- }
+if (!targetRepo || !targetFolderId || !targetBranch) {
+  setStatus("System Maintenance configuration missing in config.js.", "error");
+  return;
+}
 
- try {
-   btn.disabled = true;
-   btnSpinner.classList.remove('hidden');
-   btnText.textContent = `Backing up ${APP_NAME}...`;
-   setStatus(`Fetching repository tree for ${targetRepo}...`, "info");
-   
-   const { fileNodes, compiledFiles } = await fetchAllRepoFiles(targetRepo, targetBranch, token);
-   const hierarchy = fileNodes.map(f => f.path).join('\n');
-   const repoNameStr = targetRepo.split('/').pop();
-   
-   setStatus("Compiling files and securely transmitting to Google Drive...", "info");
+try {
+  btn.disabled = true;
+  btnSpinner.classList.remove('hidden');
+  btnText.textContent = `Backing up ${APP_NAME}...`;
+  setStatus(`Fetching repository tree for ${targetRepo}...`, "info");
+  
+  const { fileNodes, compiledFiles } = await fetchAllRepoFiles(targetRepo, targetBranch, token);
+  const hierarchy = fileNodes.map(f => f.path).join('\n');
+  const repoNameStr = targetRepo.split('/').pop();
+  
+  setStatus("Compiling files and securely transmitting to Google Drive...", "info");
 
-   const backupData = await gasCall(GAS_WEB_APP_URL, { 
-       action: 'backupCode', 
-       folderId: targetFolderId, 
-       hierarchy, 
-       files: compiledFiles, 
-       repoName: repoNameStr 
-   });
-   
-   setStatus(`System Tool Backup successful! ${generateBackupLinkHtml(backupData.url)}`, "success");
-   
- } catch(err) {
-   setStatus("System Backup Error: " + err.message, "error");
- } finally {
-   btn.disabled = false;
-   btnSpinner.classList.add('hidden');
-   btnText.textContent = `Backup ${APP_NAME}`;
- }
+  const backupData = await gasCall(GAS_WEB_APP_URL, { 
+      action: 'backupCode', 
+      folderId: targetFolderId, 
+      hierarchy, 
+      files: compiledFiles, 
+      repoName: repoNameStr 
+  });
+  
+  setStatus(`System Tool Backup successful! ${generateBackupLinkHtml(backupData.url)}`, "success");
+  
+} catch(err) {
+  setStatus("System Backup Error: " + err.message, "error");
+} finally {
+  btn.disabled = false;
+  btnSpinner.classList.add('hidden');
+  btnText.textContent = `Backup ${APP_NAME}`;
+}
 });
 
 
@@ -1052,7 +1054,7 @@ const scaleVal = document.getElementById('scale-val');
 // Remove the 192 element from DOM to align with updated UI requirements
 const obsolete192Canvas = document.getElementById('preview-192-canvas');
 if (obsolete192Canvas && obsolete192Canvas.parentElement) {
-    obsolete192Canvas.parentElement.remove();
+   obsolete192Canvas.parentElement.remove();
 }
 
 const canvas512 = document.getElementById('preview-512-canvas');
@@ -1075,279 +1077,294 @@ let initialConfig = {};
 let isApplyingHistoryState = false;
 
 function captureIconState() {
-    return {
-        env: iconEnvSelect.value,
-        scale: iconScale.value,
-        x: iconX.value,
-        y: iconY.value,
-        bgColor: iconBgColor.value,
-        sharpen: iconSharpen.checked
-    };
+   return {
+       env: iconEnvSelect.value,
+       scale: iconScale.value,
+       x: iconX.value,
+       y: iconY.value,
+       bgColor: iconBgColor.value,
+       sharpen: iconSharpen.checked
+   };
 }
 
 function applyIconState(state) {
-    isApplyingHistoryState = true;
-    iconEnvSelect.value = state.env;
-    iconScale.value = state.scale;
-    iconX.value = state.x;
-    iconY.value = state.y;
-    iconBgColor.value = state.bgColor;
-    if (bgColorIndicator) bgColorIndicator.style.backgroundColor = state.bgColor;
-    iconSharpen.checked = state.sharpen;
-    isApplyingHistoryState = false;
-    
-    updateLabelValues();
-    renderIconCanvases();
-    updateHistoryButtons();
+   isApplyingHistoryState = true;
+   iconEnvSelect.value = state.env;
+   iconScale.value = state.scale;
+   iconX.value = state.x;
+   iconY.value = state.y;
+   iconBgColor.value = state.bgColor;
+   if (bgColorIndicator) bgColorIndicator.style.backgroundColor = state.bgColor;
+   iconSharpen.checked = state.sharpen;
+   isApplyingHistoryState = false;
+   
+   updateLabelValues();
+   renderIconCanvases();
+   updateHistoryButtons();
 }
 
 function saveHistoryStep() {
-    if (isApplyingHistoryState || !iconImgLoaded) return;
-    const currentState = captureIconState();
-    if (undoStack.length === 0 || JSON.stringify(undoStack[undoStack.length - 1]) !== JSON.stringify(currentState)) {
-        undoStack.push(currentState);
-        redoStack = []; 
-        updateHistoryButtons();
-    }
+   if (isApplyingHistoryState || !iconImgLoaded) return;
+   const currentState = captureIconState();
+   if (undoStack.length === 0 || JSON.stringify(undoStack[undoStack.length - 1]) !== JSON.stringify(currentState)) {
+       undoStack.push(currentState);
+       redoStack = []; 
+       updateHistoryButtons();
+   }
 }
 
 function updateHistoryButtons() {
-    undoBtn.disabled = undoStack.length <= 1;
-    redoBtn.disabled = redoStack.length === 0;
-    resetBtn.disabled = !iconImgLoaded;
+   undoBtn.disabled = undoStack.length <= 1;
+   redoBtn.disabled = redoStack.length === 0;
+   resetBtn.disabled = !iconImgLoaded;
 }
 
 function updateLabelValues() {
-    scaleVal.textContent = parseFloat(iconScale.value).toFixed(2) + 'x';
+   scaleVal.textContent = parseFloat(iconScale.value).toFixed(2) + 'x';
 }
 
 function unlockControls() {
-    [iconEnvSelect, iconBgColor, iconScale, iconX, iconY, iconSharpen, uploadIconsBtn].forEach(el => el.disabled = false);
-    
-    previewPlaceholder.classList.add('opacity-0');
-    setTimeout(() => {
-        previewPlaceholder.classList.add('hidden');
-        workspaceContainer.classList.remove('hidden');
-        // allow flex to apply before transitioning opacity
-        setTimeout(() => workspaceContainer.classList.remove('opacity-0'), 10);
-    }, 300);
+   [iconEnvSelect, iconBgColor, iconScale, iconX, iconY, iconSharpen, uploadIconsBtn].forEach(el => el.disabled = false);
+   
+   previewPlaceholder.classList.add('opacity-0');
+   setTimeout(() => {
+       previewPlaceholder.classList.add('hidden');
+       workspaceContainer.classList.remove('hidden');
+       // allow flex to apply before transitioning opacity
+       setTimeout(() => workspaceContainer.classList.remove('opacity-0'), 10);
+   }, 300);
 }
 
 iconFileInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+   const file = e.target.files[0];
+   if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        iconImg = new Image();
-        iconImg.crossOrigin = 'Anonymous';
-        iconImg.onload = () => {
-            iconImgLoaded = true;
-            
-            unlockControls();
-            
-            const maxDim = Math.max(iconImg.width, iconImg.height);
-            iconX.min = -maxDim; iconX.max = maxDim;
-            iconY.min = -maxDim; iconY.max = maxDim;
-            
-            // Default configuration
-            iconEnvSelect.value = "prod";
-            iconBgColor.value = "#FFFFFF";
-            if (bgColorIndicator) bgColorIndicator.style.backgroundColor = "#FFFFFF";
-            iconX.value = 0;
-            iconY.value = 0;
-            iconScale.value = (iconImg.width > iconImg.height) ? (512 / iconImg.height) : (512 / iconImg.width);
-            iconSharpen.checked = false;
+   const reader = new FileReader();
+   reader.onload = (event) => {
+       iconImg = new Image();
+       iconImg.crossOrigin = 'Anonymous';
+       iconImg.onload = () => {
+           iconImgLoaded = true;
+           
+           unlockControls();
+           
+           const maxDim = Math.max(iconImg.width, iconImg.height);
+           iconX.min = -maxDim; iconX.max = maxDim;
+           iconY.min = -maxDim; iconY.max = maxDim;
+           
+           // Default configuration
+           iconEnvSelect.value = "prod";
+           iconBgColor.value = "#FFFFFF";
+           if (bgColorIndicator) bgColorIndicator.style.backgroundColor = "#FFFFFF";
+           iconX.value = 0;
+           iconY.value = 0;
+           iconScale.value = (iconImg.width > iconImg.height) ? (512 / iconImg.height) : (512 / iconImg.width);
+           iconSharpen.checked = false;
 
-            updateLabelValues();
+           updateLabelValues();
 
-            initialConfig = captureIconState();
-            undoStack = [captureIconState()];
-            redoStack = [];
-            
-            renderIconCanvases();
-            updateHistoryButtons();
-        };
-        iconImg.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
+           initialConfig = captureIconState();
+           undoStack = [captureIconState()];
+           redoStack = [];
+           
+           renderIconCanvases();
+           updateHistoryButtons();
+       };
+       iconImg.src = event.target.result;
+   };
+   reader.readAsDataURL(file);
 });
 
 // Event Bindings for Controls
 [iconScale, iconX, iconY].forEach(el => {
-    el.addEventListener('input', () => { if(iconImgLoaded) { updateLabelValues(); renderIconCanvases(); } });
-    el.addEventListener('change', () => { if(iconImgLoaded) saveHistoryStep(); });
+   el.addEventListener('input', () => { if(iconImgLoaded) { updateLabelValues(); renderIconCanvases(); } });
+   el.addEventListener('change', () => { if(iconImgLoaded) saveHistoryStep(); });
 });
 
 iconBgColor.addEventListener('input', (e) => {
-    if (bgColorIndicator) bgColorIndicator.style.backgroundColor = e.target.value;
+   if (bgColorIndicator) bgColorIndicator.style.backgroundColor = e.target.value;
 });
 
 [iconBgColor, iconSharpen, iconEnvSelect].forEach(el => {
-    el.addEventListener('change', () => { if(iconImgLoaded) { renderIconCanvases(); saveHistoryStep(); } });
+   el.addEventListener('change', () => { if(iconImgLoaded) { renderIconCanvases(); saveHistoryStep(); } });
 });
 
 undoBtn.addEventListener('click', () => {
-    if (undoStack.length > 1) {
-        redoStack.push(undoStack.pop());
-        applyIconState(undoStack[undoStack.length - 1]);
-    }
+   if (undoStack.length > 1) {
+       redoStack.push(undoStack.pop());
+       applyIconState(undoStack[undoStack.length - 1]);
+   }
 });
 
 redoBtn.addEventListener('click', () => {
-    if (redoStack.length > 0) {
-        const state = redoStack.pop();
-        undoStack.push(state);
-        applyIconState(state);
-    }
+   if (redoStack.length > 0) {
+       const state = redoStack.pop();
+       undoStack.push(state);
+       applyIconState(state);
+   }
 });
 
 resetBtn.addEventListener('click', () => {
-    if (iconImgLoaded) {
-        undoStack = [initialConfig];
-        redoStack = [];
-        applyIconState(initialConfig);
-    }
+   if (iconImgLoaded) {
+       undoStack = [initialConfig];
+       redoStack = [];
+       applyIconState(initialConfig);
+   }
 });
 
 // Drawing Logic
 function sharpenFilter(ctx, w, h) {
-    const imageData = ctx.getImageData(0, 0, w, h);
-    const data = imageData.data;
-    const output = ctx.createImageData(w, h);
-    const outputData = output.data;
-    const k = [  0, -0.5,  0, -0.5,   3, -0.5, 0, -0.5,  0 ];
+   const imageData = ctx.getImageData(0, 0, w, h);
+   const data = imageData.data;
+   const output = ctx.createImageData(w, h);
+   const outputData = output.data;
+   const k = [  0, -0.5,  0, -0.5,   3, -0.5, 0, -0.5,  0 ];
 
-    for (let y = 1; y < h - 1; y++) {
-        for (let x = 1; x < w - 1; x++) {
-            for (let c = 0; c < 3; c++) {
-                let sum = 0;
-                for (let ky = -1; ky <= 1; ky++) {
-                    for (let kx = -1; kx <= 1; kx++) {
-                        const idx = ((y + ky) * w + (x + kx)) * 4 + c;
-                        const kidx = (ky + 1) * 3 + (kx + 1);
-                        sum += data[idx] * k[kidx];
-                    }
-                }
-                outputData[(y * w + x) * 4 + c] = Math.min(255, Math.max(0, sum));
-            }
-            outputData[(y * w + x) * 4 + 3] = data[(y * w + x) * 4 + 3];
-        }
-    }
-    ctx.putImageData(output, 0, 0);
+   for (let y = 1; y < h - 1; y++) {
+       for (let x = 1; x < w - 1; x++) {
+           for (let c = 0; c < 3; c++) {
+               let sum = 0;
+               for (let ky = -1; ky <= 1; ky++) {
+                   for (let kx = -1; kx <= 1; kx++) {
+                       const idx = ((y + ky) * w + (x + kx)) * 4 + c;
+                       const kidx = (ky + 1) * 3 + (kx + 1);
+                       sum += data[idx] * k[kidx];
+                   }
+               }
+               outputData[(y * w + x) * 4 + c] = Math.min(255, Math.max(0, sum));
+           }
+           outputData[(y * w + x) * 4 + 3] = data[(y * w + x) * 4 + 3];
+       }
+   }
+   ctx.putImageData(output, 0, 0);
 }
 
 function drawIconToCanvas(canvas, size, state) {
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, size, size);
-    
-    // Background Fill
-    ctx.fillStyle = state.bgColor;
-    ctx.fillRect(0, 0, size, size);
-    
-    // Draw Base Image
-    const scaleModifier = size / 512; 
-    const scale = parseFloat(state.scale) * scaleModifier;
-    const offsetX = parseInt(state.x) * scaleModifier;
-    const offsetY = parseInt(state.y) * scaleModifier;
+   const ctx = canvas.getContext('2d');
+   ctx.clearRect(0, 0, size, size);
+   
+   // Background Fill
+   ctx.fillStyle = state.bgColor;
+   ctx.fillRect(0, 0, size, size);
+   
+   // Draw Base Image
+   const scaleModifier = size / 512; 
+   const scale = parseFloat(state.scale) * scaleModifier;
+   const offsetX = parseInt(state.x) * scaleModifier;
+   const offsetY = parseInt(state.y) * scaleModifier;
 
-    const drawWidth = iconImg.width * scale;
-    const drawHeight = iconImg.height * scale;
-    
-    const px = (size - drawWidth) / 2 + offsetX;
-    const py = (size - drawHeight) / 2 + offsetY;
+   const drawWidth = iconImg.width * scale;
+   const drawHeight = iconImg.height * scale;
+   
+   const px = (size - drawWidth) / 2 + offsetX;
+   const py = (size - drawHeight) / 2 + offsetY;
 
-    ctx.drawImage(iconImg, px, py, drawWidth, drawHeight);
+   ctx.drawImage(iconImg, px, py, drawWidth, drawHeight);
 
-    // Apply Filters
-    if (state.sharpen) {
-        sharpenFilter(ctx, size, size);
-    }
+   // Apply Filters
+   if (state.sharpen) {
+       sharpenFilter(ctx, size, size);
+   }
 
-    // Apply Environment Banner Overlay
-    if (state.env !== 'prod') {
-        const bannerHeight = size * 0.16;
-        ctx.fillStyle = state.env === 'dev' ? '#FF3B30' : '#8E44AD';
-        ctx.fillRect(0, 0, size, bannerHeight);
+   // Apply Environment Banner Overlay
+   if (state.env !== 'prod') {
+       const bannerHeight = size * 0.16;
+       ctx.fillStyle = state.env === 'dev' ? '#FF3B30' : '#8E44AD';
+       ctx.fillRect(0, 0, size, bannerHeight);
 
-        const text = state.env === 'dev' ? 'TESTING' : 'EXPERIMENTATION';
-        const fontSize = bannerHeight * (size === 192 && text.length > 10 ? 0.45 : 0.55);
-        ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`;
-        ctx.fillStyle = '#FFFFFF';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, size / 2, bannerHeight / 2);
-    }
+       const text = state.env === 'dev' ? 'TESTING' : 'EXPERIMENTATION';
+       
+       // Maximize font size vertically first (85% of banner height)
+       let fontSize = bannerHeight * 0.85;
+       ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`;
+       
+       // Constrain dynamically horizontally to prevent overflow
+       const textWidth = ctx.measureText(text).width;
+       const maxTextWidth = size * 0.94; // 3% padding left and right
+       
+       if (textWidth > maxTextWidth) {
+           fontSize = fontSize * (maxTextWidth / textWidth);
+           ctx.font = `900 ${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`;
+       }
+
+       ctx.fillStyle = '#FFFFFF';
+       ctx.textAlign = 'center';
+       ctx.textBaseline = 'middle';
+       
+       // Optical offset to nudge caps slightly down to appear perfectly centered
+       const opticalOffsetY = fontSize * 0.05;
+       ctx.fillText(text, size / 2, (bannerHeight / 2) + opticalOffsetY);
+   }
 }
 
 function renderIconCanvases() {
-    if (!iconImgLoaded) return;
-    const state = captureIconState();
-    
-    // Draw visible canvas
-    drawIconToCanvas(canvas512, 512, state);
-    
-    // Silently draw the offscreen 192x192 canvas for final processing
-    drawIconToCanvas(offscreenCanvas192, 192, state);
+   if (!iconImgLoaded) return;
+   const state = captureIconState();
+   
+   // Draw visible canvas
+   drawIconToCanvas(canvas512, 512, state);
+   
+   // Silently draw the offscreen 192x192 canvas for final processing
+   drawIconToCanvas(offscreenCanvas192, 192, state);
 }
 
 // Push to GitHub
 uploadIconsBtn.addEventListener('click', async () => {
-    if (!iconImgLoaded) return;
-    
-    const btnText = document.getElementById('upload-icons-btn-text');
-    const btnSpinner = document.getElementById('upload-icons-btn-spinner');
-    
-    try {
-        const config = getConfig(); // Validates config inputs inherently
-        
-        uploadIconsBtn.disabled = true;
-        btnSpinner.classList.remove('hidden');
-        btnText.textContent = "Uploading Icons...";
-        setStatus("Preparing App Icons for deployment...", "info");
+   if (!iconImgLoaded) return;
+   
+   const btnText = document.getElementById('upload-icons-btn-text');
+   const btnSpinner = document.getElementById('upload-icons-btn-spinner');
+   
+   try {
+       const config = getConfig(); // Validates config inputs inherently
+       
+       uploadIconsBtn.disabled = true;
+       btnSpinner.classList.remove('hidden');
+       btnText.textContent = "Uploading Icons...";
+       setStatus("Preparing App Icons for deployment...", "info");
 
-        // Extract pure base64 payload from drawn canvases
-        const base64_192 = offscreenCanvas192.toDataURL('image/png').split(',')[1];
-        const base64_512 = canvas512.toDataURL('image/png').split(',')[1];
+       // Extract pure base64 payload from drawn canvases
+       const base64_192 = offscreenCanvas192.toDataURL('image/png').split(',')[1];
+       const base64_512 = canvas512.toDataURL('image/png').split(',')[1];
 
-        // Construct exact file payload specifically flagged as base64 encoding
-        const filesToPush = [
-            { path: 'assets/icon-192.png', content: base64_192, encoding: 'base64' },
-            { path: 'assets/icon-512.png', content: base64_512, encoding: 'base64' }
-        ];
+       // Construct exact file payload specifically flagged as base64 encoding
+       const filesToPush = [
+           { path: 'assets/icon-192.png', content: base64_192, encoding: 'base64' },
+           { path: 'assets/icon-512.png', content: base64_512, encoding: 'base64' }
+       ];
 
-        setStatus(`Pushing new icons to ${config.repo} at assets/icon-*.png...`, "info");
-        
-        const newCommitSha = await pushCommitToGitHub(
-            config.repo, 
-            config.branch, 
-            config.token, 
-            filesToPush, 
-            `Update App Icons via ${APP_NAME} Icon Studio`
-        );
-        
-        // Reset state post-upload
-        iconFileInput.value = '';
-        iconImgLoaded = false;
-        btnText.textContent = "Push Configured Icons to Repository";
-        btnSpinner.classList.add('hidden');
-        
-        // Disable controls again
-        [iconEnvSelect, iconBgColor, iconScale, iconX, iconY, iconSharpen, uploadIconsBtn].forEach(el => el.disabled = true);
-        
-        workspaceContainer.classList.add('opacity-0');
-        setTimeout(() => {
-            workspaceContainer.classList.add('hidden');
-            previewPlaceholder.classList.remove('hidden');
-            setTimeout(() => previewPlaceholder.classList.remove('opacity-0'), 10);
-        }, 300);
+       setStatus(`Pushing new icons to ${config.repo} at assets/icon-*.png...`, "info");
+       
+       const newCommitSha = await pushCommitToGitHub(
+           config.repo, 
+           config.branch, 
+           config.token, 
+           filesToPush, 
+           `Update App Icons via ${APP_NAME} Icon Studio`
+       );
+       
+       // Reset state post-upload
+       iconFileInput.value = '';
+       iconImgLoaded = false;
+       btnText.textContent = "Push Configured Icons to Repository";
+       btnSpinner.classList.add('hidden');
+       
+       // Disable controls again
+       [iconEnvSelect, iconBgColor, iconScale, iconX, iconY, iconSharpen, uploadIconsBtn].forEach(el => el.disabled = true);
+       
+       workspaceContainer.classList.add('opacity-0');
+       setTimeout(() => {
+           workspaceContainer.classList.add('hidden');
+           previewPlaceholder.classList.remove('hidden');
+           setTimeout(() => previewPlaceholder.classList.remove('opacity-0'), 10);
+       }, 300);
 
-        pollWorkflowStatus(config.repo, config.token, newCommitSha);
+       pollWorkflowStatus(config.repo, config.token, newCommitSha);
 
-    } catch (err) {
-        setStatus(err.message, "error");
-        uploadIconsBtn.disabled = false;
-        btnSpinner.classList.add('hidden');
-        btnText.textContent = "Push Configured Icons to Repository";
-    }
+   } catch (err) {
+       setStatus(err.message, "error");
+       uploadIconsBtn.disabled = false;
+       btnSpinner.classList.add('hidden');
+       btnText.textContent = "Push Configured Icons to Repository";
+   }
 });
